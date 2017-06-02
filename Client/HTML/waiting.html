@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sevenish</title>
+	<script type="text/javascript" src="../JavaScript/jquery.js"></script>
+		<script>
+		var check = function() {
+			var ajax = new XMLHttpRequest();
+			ajax.open('GET','/check',false);
+			ajax.send(null);
+			if(ajax.status == 401) {
+				window.location.pathname = "/HTML/signIn.html";
+			}
+		}
+		check();
+	</script>
+	<link rel="stylesheet" type="text/css" href="../CSS/waiting.css">
+</head>
+<body>
+<img src="../Resources/loader.gif">
+<script type="text/javascript" src="../JavaScript/jquery.js"></script>
+<script type="text/javascript" src="../JavaScript/waiting.js"></script>
+</body>
+</html>

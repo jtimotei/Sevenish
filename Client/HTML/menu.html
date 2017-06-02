@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sevenish</title>
+	<script type="text/javascript" src="../JavaScript/jquery.js"></script>
+	<script>
+		var check = function() {
+			var ajax = new XMLHttpRequest();
+			ajax.open('GET','/check',false);
+			ajax.send(null);
+			if(ajax.status == 401) {
+				window.location.pathname = "/HTML/signIn.html";
+			}
+		}
+		check();
+	</script>
+</head>
+<body>
+<button>Play</button>
+<script type="text/javascript" src="../JavaScript/menu.js"></script>
+</body>
+</html>

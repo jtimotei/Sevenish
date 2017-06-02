@@ -1,0 +1,64 @@
+*{
+	margin:0px; 
+	padding:0px;
+}
+html{
+	height: 100%;
+	width: 100%;
+}
+body{
+	text-align: center;
+	height: 100%;
+	width: 100%;
+	font-size:100%;
+	background-color: #2B2C2F;
+	overflow: hidden;
+}
+
+#player_1 {
+	height:33%;
+	width: 100%;
+	text-align: center;
+}
+
+#player_3 {
+	width: 100%;
+	height: 20%;
+	text-align: center;
+	/*background-color: blue;*/
+}
+
+#player_2 {
+	display:inline-block;
+	width: 22%;
+	height:48%;
+	/*background-color: red;*/
+}
+
+#player_4 {
+	margin: 0px;
+	display:inline-block;
+	width:25%;
+	height:48%;
+	/*background-color: green;*/
+
+}
+
+#table {
+	display:inline-block;
+	width:51%;
+	height: 48%;
+	background-color: yellow;
+}
+img.cards {
+	margin:3px;
+	width:200px;
+	height:313px;
+}
+img.cards:hover {
+	margin:0px;
+	border-radius: 14px;
+	border:3px solid rgba(0,0,0,0.5);
+	cursor:pointer;
+}
+

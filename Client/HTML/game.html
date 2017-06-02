@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sevenish</title>
+	<script type="text/javascript" src="../JavaScript/jquery.js"></script>
+	<script>
+		var check = function() {
+			var ajax = new XMLHttpRequest();
+			ajax.open('GET','/check',false);
+			ajax.send(null);
+			if(ajax.status == 401) {
+				window.location.pathname = "/HTML/signIn.html";
+			}
+		}
+		check();
+	</script>
+	<link rel="stylesheet" type="text/css" href="../CSS/game.css">
+</head>
+<body>
+<button> Click me </button>
+<div id="player_3"></div>
+<div id="player_2"></div>
+<div id="table"></div>
+<div id="player_4"></div>
+<div id="player_1"></div>
+<script type="text/javascript" src="../JavaScript/game.js"></script>
+</body>
+</html>
