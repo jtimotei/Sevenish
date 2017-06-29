@@ -116,11 +116,18 @@ app.get("/HTML/logOut", function(req, res){
 });
 
 app.post("/HTML/playQueue", function(req, res, next) {
-    playQueue.push({username:req.session.username, date: req.body.date});
+    playQueue.push({username:req.session.username, date: req.body.date, lastSent: req.body.lastSent});
     res.send();
 });
 
 app.post("/HTML/search", function(req, res) {
+    for(var i=0; i<playQueue.length;i++) {
+        var currentTime = new Date();
+        if(playQueue[i].username == req.session.username && playQueue[i].date == req.body.date) {
+            playQueue[i].lastSent = req.body.lastSent;
+            break;
+        }
+    }
     for(var i=0;i<games.length;i++) {
         for(var j=0;j<4;j++) {
             if(games[i].players[j].date == req.body.date && games[i].players[j].username == req.session.username) {
@@ -133,7 +140,7 @@ app.post("/HTML/search", function(req, res) {
 })
 
 function removeFromPlayQueue(array) {
-    for(var i=0;i<4;i++) {
+    for(var i=0;i<array.length;i++) {
         playQueue.splice(array[i]-i,1);
     }
 }
@@ -151,15 +158,22 @@ function match() {
             team1P:0,
             team2P:0
         };
-        game.players[0] = playQueue[0];
-        var playersFound = 1;
-        var indexes = [0]; 
-        for(var j=1;j<playQueue.length;j++) {
+        var playersFound = 0;
+        var indexes = []; 
+        var invalidEntries = [];
+        for(var j=0;j<playQueue.length;j++) {
             var ok = true;
-            for(var i=0;i<playersFound;i++) {
-                if(game.players[i].username == playQueue[j].username){
-                    ok = false;
-                    break;
+            var currentTime = new Date().getTime();
+            if(currentTime - playQueue[j].lastSent > 4000) {
+                invalidEntries.push(j);
+                ok = false;
+            }
+            else {
+                for(var i=0;i<playersFound;i++) {
+                    if(game.players[i].username == playQueue[j].username){
+                        ok = false;
+                        break;
+                    }
                 }
             }
             if(ok) {
@@ -169,6 +183,7 @@ function match() {
             }
             if(playersFound == 4) break;
         }
+        removeFromPlayQueue(invalidEntries);
         if(playersFound == 4) {
             games.push(game);
             gameNr++;

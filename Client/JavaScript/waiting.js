@@ -5,12 +5,13 @@
 * Every move one players make are sent to the server with that id so we know who made what move in what game. 
 */
 
-var id = new Date();
+var id = new Date().getTime();
+
 
 $.ajax({
 		type: "POST",
 		url: "/HTML/playQueue",
-		data: {date:id},
+		data: {date:id, lastSent:id},
 		dataType: 'json',
 		complete: function() {
 			poll();
@@ -19,10 +20,11 @@ $.ajax({
 
 function poll() {
 	setInterval(function request() {
+		var currentTime = new Date();
 		$.ajax({
 			type: "POST",
 			url: "/HTML/search",
-			data: {date:id},
+			data: {date:id, lastSent:currentTime.getTime()},
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseJSON.message == "Game found") {
@@ -32,3 +34,6 @@ function poll() {
 		});
 	}, 2000);
 }
+
+
+
