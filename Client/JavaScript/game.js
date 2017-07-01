@@ -1,4 +1,10 @@
 var game;
+var nrOfCardsInHand;
+const cardPositions = [[{rotationAngle:0, top:0, left:0}],[{rotationAngle:-10, top:0, left:40}, {rotationAngle:10,top:0,left:-40}],
+	[{rotationAngle:-20,top:20, left:60}, {rotationAngle:0,top:0, left:0}, {rotationAngle:20,top:20, left:-60}],
+	[{rotationAngle:-30,top:50, left:110}, {rotationAngle:-10,top:0,left:40}, 
+	{rotationAngle:10,top:0,left:-40}, {rotationAngle:30,top:50, left:-110}]];
+
 function main() {
 	var turn=0;
 	$.ajax({
@@ -11,12 +17,14 @@ function main() {
 			else if(xhr.responseJSON.message == "Game not found") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
-				updateCards();
+				updateOwnCards();
+				updateTableCards();
 				poll();
 			}
 		}
 	});
 
+	//TODO - bugfix -> cards disappear
 	$("button").on("click", function() {
 		$.ajax({
 			type: "POST",
@@ -26,7 +34,8 @@ function main() {
 			complete: function(xhr) {
 				if(xhr.responseText != "Invalid action") {
 					game = xhr.responseJSON;
-					updateCards();
+					updateOwnCards();
+					updateTableCards();
 				}
 			}
 		});
@@ -42,23 +51,57 @@ function poll() {
 			data: {gameId:window.location.search.substring(3)},
 			dataType: 'json',
 			complete: function(xhr) {
-				
 				if(xhr.responseText != "Not authorized") {
+					var lengthOwnCards = game.cards.length;
+					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
-					updateCards();
+					if(lengthOwnCards != game.cards.length) updateOwnCards();
+					if(lengthTableCards != game.onTable.length) updateTableCards();
 				}
 			}
 		})
 	}, 1500);
 }
 
-function updateCards() {
+function updateOwnCards() {
 	$("#player_1").empty();
+	nrOfCardsInHand = game.cards.length;
 	for(var i=0;i<4;i++){
-		if(game.cards[i] != undefined)	$("#player_1").append("<img src='../Resources/"+game.cards[i]+".png' onclick='selectCard(this)' data-nr='"+i+"' class='cards'>");
+		if(game.cards[i] != undefined) {
+			var img = $("<img>").attr({src:"../Resources/"+game.cards[i]+".png", 
+				class:"cards", 
+				'data-nr':i, 
+				onclick:"selectCard(this)", 
+				onmouseenter:"pullCard(this)",
+				onmouseleave:"putCardBack(this)",
+				draggable:false
+			});
+			img.css("transform", "rotate("+cardPositions[nrOfCardsInHand-1][i].rotationAngle+"deg)");
+			img.css("top", cardPositions[nrOfCardsInHand-1][i].top);
+			img.css("left", cardPositions[nrOfCardsInHand-1][i].left);
+			$("#player_1").append(img);
+		}
 	}
+}
+
+function updateTableCards() {
 	$("#table").empty();
-	if(game.onTable.length !=0) $("#table").append("<img src='../Resources/"+game.onTable[game.onTable.length-1]+".png'  class='cards'>");
+	if(game.onTable.length !=0) $("#table").append("<img src='../Resources/"+game.onTable[game.onTable.length-1]+".png' draggable='false' class='cards'>");
+}
+
+window.document.pullCard = function(card) {
+	var index = card.getAttribute("data-nr");
+	var topOffset = cardPositions[nrOfCardsInHand-1][index].top-50;
+	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
+	leftOffset = leftOffset - (0.4 *leftOffset);
+	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeOutExpo");
+}
+
+window.document.putCardBack = function(card) {	
+	var index = card.getAttribute("data-nr");
+	var topOffset = cardPositions[nrOfCardsInHand-1][index].top;
+	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
+	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeInExpo");
 }
 
 window.document.selectCard = function(c) { 
@@ -70,7 +113,8 @@ window.document.selectCard = function(c) {
 		complete: function(xhr) {
 			if(xhr.responseText != "Not your turn") {
 				game = xhr.responseJSON;
-				updateCards();
+				updateOwnCards();
+				updateTableCards();
 			}
 		}
 	})
