@@ -54,7 +54,7 @@ router.post('/HTML/putCardOnTable', function(req, res) {
         }
     }
     else{
-        res.send("Not your turn");
+        res.send("Invalid action");
     }
 })
 
@@ -71,8 +71,12 @@ function addPoints(index) {
 }
 
 router.post('/HTML/getGameState', function(req, res) {
+    if(games.length <= req.body.gameId) {
+        res.send("Game not found");
+        return;
+    }
+
     var g = games[req.body.gameId];
-    // still have to check if the game exists
     for(var j=0;j<4;j++) {
         if(req.session.username == g.players[j].username) {
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], you:j});

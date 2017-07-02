@@ -106,8 +106,6 @@ app.post("/HTML/checkUsername", function(req, res) {
     });
 });
 
-
-
 app.get("/HTML/logOut", function(req, res){
     req.session.username = undefined;
     req.session.name = undefined;

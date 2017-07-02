@@ -23,24 +23,6 @@ function main() {
 			}
 		}
 	});
-
-	//TODO - bugfix -> cards disappear
-	$("button").on("click", function() {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/putCardOnTable",
-			data: {gameId:window.location.search.substring(3), card:-1},
-			dataType: 'json',
-			complete: function(xhr) {
-				if(xhr.responseText != "Invalid action") {
-					game = xhr.responseJSON;
-					updateOwnCards();
-					updateTableCards();
-				}
-			}
-		});
-	})
-
 }
 
 function poll() {
@@ -51,16 +33,17 @@ function poll() {
 			data: {gameId:window.location.search.substring(3)},
 			dataType: 'json',
 			complete: function(xhr) {
-				if(xhr.responseText != "Not authorized") {
+				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
+
 				}
 			}
 		})
-	}, 1500);
+	}, 2000);
 }
 
 function updateOwnCards() {
@@ -87,6 +70,12 @@ function updateOwnCards() {
 function updateTableCards() {
 	$("#table").empty();
 	if(game.onTable.length !=0) $("#table").append("<img src='../Resources/"+game.onTable[game.onTable.length-1]+".png' draggable='false' class='cards'>");
+	
+	if(game.turn == game.you && game.onTable.length%4==0 && game.onTable.length>0) {
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/giveCards.ico");
+		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
+		$("#player_1").append(giveCardsIcon);
+	}
 }
 
 window.document.pullCard = function(card) {
@@ -104,20 +93,38 @@ window.document.putCardBack = function(card) {
 	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeInExpo");
 }
 
-window.document.selectCard = function(c) { 
-	$.ajax({
-		type: "POST",
-		url: "/HTML/putCardOnTable",
-		data: {gameId:window.location.search.substring(3), card:c.getAttribute("data-nr")},
-		dataType: 'json',
-		complete: function(xhr) {
-			if(xhr.responseText != "Not your turn") {
-				game = xhr.responseJSON;
-				updateOwnCards();
-				updateTableCards();
+window.document.selectCard = function(c) {
+	if(game.turn == game.you) {
+		$.ajax({
+			type: "POST",
+			url: "/HTML/putCardOnTable",
+			data: {gameId:window.location.search.substring(3), card:c.getAttribute("data-nr")},
+			dataType: 'json',
+			complete: function(xhr) {
+				if(xhr.responseText != "Invalid action") {
+					game = xhr.responseJSON;
+					updateOwnCards();
+					updateTableCards();
+				}
 			}
-		}
-	})
+		})
+	}
 }
+
+window.document.emptyTable = function() {
+		$.ajax({
+			type: "POST",
+			url: "/HTML/putCardOnTable",
+			data: {gameId:window.location.search.substring(3), card:-1},
+			dataType: 'json',
+			complete: function(xhr) {
+				if(xhr.responseText != "Invalid action") {
+					game = xhr.responseJSON;
+					updateOwnCards();
+					updateTableCards();
+				}
+			}
+		});
+	}
 
 $(document).ready(main);
