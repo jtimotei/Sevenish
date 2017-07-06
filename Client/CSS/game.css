@@ -12,7 +12,6 @@ body{
 	width: 100%;
 	font-size:100%;
 	background-color: darkgray;
-	overflow: hidden;
 }
 
 #player_1 {
@@ -26,6 +25,7 @@ body{
 	width: 100%;
 	height: 20%;
 	text-align: center;
+	overflow: hidden;
 	/*background-color: blue;*/
 }
 
@@ -43,6 +43,7 @@ body{
 	display:inline-block;
 	width:25%;
 	height:48%;
+	overflow: hidden;
 	/*background-color: green;*/
 
 }
@@ -56,10 +57,21 @@ body{
 img.cards {
 	border:3px solid rgba(0,0,0,0);
 	position:relative;
+	width:140px;
+	height:219px;
+	top:50%;
+	transform: translateY(-50%);
+	z-index: 1;
+}
+
+
+#table img.cards, #player_1 img.cards{
 	width:200px;
 	height:313px;
+	z-index:2;
 }
-img.cards:hover {
+
+#table img.cards:hover, #player_1 img.cards:hover {
 	border-radius: 12px;
 	border:3px solid black;
 	cursor:pointer;

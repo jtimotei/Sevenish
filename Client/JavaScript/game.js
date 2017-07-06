@@ -1,6 +1,7 @@
 var game;
 var nrOfCardsInHand;
-const cardPositions = [[{rotationAngle:0, top:0, left:0}],[{rotationAngle:-10, top:0, left:40}, {rotationAngle:10,top:0,left:-40}],
+const cardPositions = 
+	[[{rotationAngle:0, top:0, left:0}],[{rotationAngle:-10, top:0, left:40}, {rotationAngle:10,top:0,left:-40}],
 	[{rotationAngle:-20,top:20, left:60}, {rotationAngle:0,top:0, left:0}, {rotationAngle:20,top:20, left:-60}],
 	[{rotationAngle:-30,top:50, left:110}, {rotationAngle:-10,top:0,left:40}, 
 	{rotationAngle:10,top:0,left:-40}, {rotationAngle:30,top:50, left:-110}]];
@@ -13,13 +14,13 @@ function main() {
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
-			if(xhr.responseJSON.message == "Access denied") window.location.pathname = "/HTML/denied.html";
-			else if(xhr.responseJSON.message == "Game not found") window.location.pathname = "/HTML/not_found.html";
+			if(xhr.responseText == "Access denied") window.location.pathname = "/HTML/denied.html";
+			else if(xhr.responseText == "Game not found") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
-				updateStand();
 				updateOwnCards();
 				updateTableCards();
+				updateCardsOtherPlayers();
 				poll();
 			}
 		}
@@ -38,7 +39,6 @@ function poll() {
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
-					updateStand();
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
 
@@ -48,10 +48,10 @@ function poll() {
 	}, 2000);
 }
 
-function updateStand() {
+/*function updateStand() {
 	$("#player_2").empty();
 	$("#player_2").html("Team 1: "+game.team1P+"<br>Team 2: "+game.team1P+"<br>Turn: "+game.players[game.turn].username);
-}
+}*/
 
 function updateOwnCards() {
 	$("#player_1").empty();
@@ -71,6 +71,16 @@ function updateOwnCards() {
 			img.css("left", cardPositions[nrOfCardsInHand-1][i].left);
 			$("#player_1").append(img);
 		}
+	}
+}
+
+function updateCardsOtherPlayers() {
+	for(var i=0;i<3;i++) {
+		for(var j=0; j<4; j++) {
+			var img = $("<img>").attr({src:"../Resources/backCards.png", class:"cards"});
+			$("#player_"+(i+2)).append(img);
+		}
+
 	}
 }
 

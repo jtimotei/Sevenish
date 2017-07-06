@@ -7,26 +7,23 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 "queen_of_spades2","king_of_clubs2","king_of_diamonds2","king_of_hearts2","king_of_spades2","ace_of_clubs","ace_of_diamonds","ace_of_hearts","ace_of_spades"];
 
 router.post('/HTML/init', function (req, res) {
-   if(req.body.gameId == undefined || req.body.gameId>games.length) {
-       res.send("Game not found");
-       //TODO
-    } else {
-        var index = -1;
-        for(var i=0;i<4;i++){
-            if(games[req.body.gameId].players[i].username == req.session.username) {
-                index = i;
-                break;
-            }
-        }
-        if(index>=0){
-            if(games[req.body.gameId].deck==undefined) initializeGame(req.body.gameId);
-            res.send({ onTable:games[req.body.gameId].onTable, players:games[req.body.gameId].players, turn: games[req.body.gameId].turn, cards:games[req.body.gameId].cards[index],team1P: 0, team2P: 0, you:index});
-            return;
-        }
-        res.send({message:"Access denied"});
-        
+   if(req.body.gameId != undefined && req.body.gameId<games.length) {
+       var index = -1;
+       for(var i=0;i<4;i++){
+           if(games[req.body.gameId].players[i].username == req.session.username) {
+               index = i;
+               break;
+           }
+       }
+       if(index>=0){
+           if(games[req.body.gameId].deck==undefined) initializeGame(req.body.gameId);
+           res.send({ onTable:games[req.body.gameId].onTable, players:games[req.body.gameId].players, turn: games[req.body.gameId].turn, cards:games[req.body.gameId].cards[index],team1P: 0, team2P: 0, you:index});
+           return;
+       }
+       res.send("Access denied");
+       
     }
-   res.send({message:"Game not found"});
+    res.send("Game not found");
 });
 
 router.post('/HTML/putCardOnTable', function(req, res) {
