@@ -17,6 +17,7 @@ function main() {
 			else if(xhr.responseJSON.message == "Game not found") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
+				updateStand();
 				updateOwnCards();
 				updateTableCards();
 				poll();
@@ -37,6 +38,7 @@ function poll() {
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
+					updateStand();
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
 
@@ -44,6 +46,11 @@ function poll() {
 			}
 		})
 	}, 2000);
+}
+
+function updateStand() {
+	$("#player_2").empty();
+	$("#player_2").html("Team 1: "+game.team1P+"<br>Team 2: "+game.team1P+"<br>Turn: "+game.players[game.turn].username);
 }
 
 function updateOwnCards() {
@@ -70,7 +77,7 @@ function updateOwnCards() {
 function updateTableCards() {
 	$("#table").empty();
 	if(game.onTable.length !=0) $("#table").append("<img src='../Resources/"+game.onTable[game.onTable.length-1]+".png' draggable='false' class='cards'>");
-	
+
 	if(game.turn == game.you && game.onTable.length%4==0 && game.onTable.length>0) {
 		var giveCardsIcon = $("<img>").attr("src", "../Resources/giveCards.ico");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
