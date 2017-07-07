@@ -15,6 +15,17 @@ body{
 	overflow:hidden;
 }
 
+div#score {
+	padding:10px;
+	text-align: left;
+	color:grey;
+	font-family: "Righteous";
+	position:fixed;
+	top:0px;
+	left:0px;
+	margin:0px;
+}
+
 #player_1 {
 	height:33%;
 	width: 100%;
@@ -69,7 +80,7 @@ div.userDivs {
 	left:50%;
 	transform: translate(-50%, -50%);
 	max-width: 200px;
-	color:rgb(153, 221, 255);
+	color:lightgrey;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -78,8 +89,9 @@ div.userDivs {
 div.userDivs p{
 	margin-top:5px;
 	font-size:1.4em;
-	font-family:'Acme';
+	font-family:'Anton';
 }
+
 #player_2 div.userDivs, #player_4 div.userDivs {
 	background-color: rgb(128, 0, 0);
 } 
@@ -150,4 +162,33 @@ img#giveCards:hover {
 	border:4px solid white;
 	border-radius: 50px;
 	cursor: pointer;
+}
+
+div#ownInfo {
+	position: absolute;
+	bottom:4px;
+	left:4px;
+	background-color: rgb(0, 51, 102);
+	padding:8px;
+	border-radius: 10px;
+	max-width: 200px;
+	width:20%;
+	color:lightgrey;
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div#ownInfo p{
+	margin-top:5px;
+	font-size:1.4em;
+	font-family:'Anton';
+}
+
+#turnIcon {
+	position:absolute;
+	left:70%;
+	top:2px;
+	width:30px;
+	height:30px;
 }

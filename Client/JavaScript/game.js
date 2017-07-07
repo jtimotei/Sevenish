@@ -21,19 +21,42 @@ function main() {
 			else {
 				game = xhr.responseJSON;
 				updateOtherPlayers();
+				updateTurnIcon();
 				updateOwnCards();
 				updateTableCards();
+				updateScore();
 				poll();
 			}
 		}
 	});
 }
 
-function updateOtherPlayers() {
-	for(var i=2;i<=4;i++){
-		$("#player_"+i+" div.userDivs").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
-		$("#player_"+i+" div.userDivs").append("<p>"+game.players[i-1].username+"</p>");
+function updateScore() {
+	$("div#score").empty();
+	if(game.you%2==0) {
+		$("div#score").html("Your team: "+game.team1P+"<br>"+"Opponent team: "+game.team2P);
 	}
+	else {
+		$("div#score").html("Your team: "+game.team2P+"<br>"+"Opponent team: "+game.team1P);
+	}
+}
+
+function updateOtherPlayers() {
+	var i=game.you;
+	$("#ownInfo").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
+	$("#ownInfo").append("<p>"+game.players[i].username+"</p>");
+
+	for(var j=2; j<=4; j++) {
+		$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
+		i=(i+1)%4;
+		$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
+	}
+}
+
+function updateTurnIcon() {
+	$("img#turnIcon").remove();
+	if(game.turn == game.you) $("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+	else $("#player_"+(game.turn+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
 function poll() {
@@ -102,6 +125,8 @@ function updateTableCards() {
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
 		$("#player_1").append(giveCardsIcon);
 	}
+
+	updateScore();
 }
 
 window.document.pullCard = function(card) {
