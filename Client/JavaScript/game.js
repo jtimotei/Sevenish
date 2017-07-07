@@ -1,10 +1,10 @@
 var game;
 var nrOfCardsInHand;
 const cardPositions = 
-	[[{rotationAngle:0, top:0, left:0}],[{rotationAngle:-10, top:0, left:40}, {rotationAngle:10,top:0,left:-40}],
-	[{rotationAngle:-20,top:20, left:60}, {rotationAngle:0,top:0, left:0}, {rotationAngle:20,top:20, left:-60}],
-	[{rotationAngle:-30,top:50, left:110}, {rotationAngle:-10,top:0,left:40}, 
-	{rotationAngle:10,top:0,left:-40}, {rotationAngle:30,top:50, left:-110}]];
+	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
+	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
+	[{rotationAngle:-30,top:70, left:110}, {rotationAngle:-10,top:20,left:40}, 
+	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
 
 var rotationTableCards = [];
 
@@ -21,7 +21,6 @@ function main() {
 			else {
 				game = xhr.responseJSON;
 				updateOtherPlayers();
-				updateTurnIcon();
 				updateOwnCards();
 				updateTableCards();
 				updateScore();
@@ -43,12 +42,12 @@ function updateScore() {
 
 function updateOtherPlayers() {
 	var i=game.you;
-	$("#ownInfo").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
+	$("#ownInfo").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
 	$("#ownInfo").append("<p>"+game.players[i].username+"</p>");
 
 	for(var j=2; j<=4; j++) {
-		$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
 		i=(i+1)%4;
+		$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
 		$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
 	}
 }
@@ -56,7 +55,7 @@ function updateOtherPlayers() {
 function updateTurnIcon() {
 	$("img#turnIcon").remove();
 	if(game.turn == game.you) $("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
-	else $("#player_"+(game.turn+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
 function poll() {
@@ -105,6 +104,9 @@ function updateOwnCards() {
 function updateTableCards() {
 	$("#table").empty();
 
+	updateScore();
+	updateTurnIcon();
+	
 	if(game.onTable.length == 0) {
 		rotationTableCards = [];
 		return;
@@ -125,8 +127,6 @@ function updateTableCards() {
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
 		$("#player_1").append(giveCardsIcon);
 	}
-
-	updateScore();
 }
 
 window.document.pullCard = function(card) {

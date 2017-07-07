@@ -34,7 +34,7 @@ div#score {
 
 #player_3 {
 	width: 100%;
-	height: 20%;
+	height: 23%;
 	position: relative;
 	overflow:hidden;
 }
@@ -42,7 +42,7 @@ div#score {
 #player_2 {
 	display:inline-block;
 	width: 23%;
-	height:48%;
+	height:45%;
 	overflow: hidden;
 	position: relative;
 	float:left;
@@ -52,7 +52,7 @@ div#score {
 	margin: 0px;
 	display:inline-block;
 	width:23%;
-	height:48%;
+	height:45%;
 	overflow: hidden;
 	position: relative;
 	float:right;
@@ -67,7 +67,7 @@ div#score {
     box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
 	display:inline-block;
 	width:50%;
-	height: 48%;
+	height: 45%;
 	overflow:hidden;
 	position:relative;
 }
@@ -128,8 +128,6 @@ img.cards {
 	max-width: 23%;
 	max-height: 120%;
 	z-index: 2;
-	top:50%;
-	transform: translateY(-50%);
 
 	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
@@ -166,17 +164,18 @@ img#giveCards:hover {
 
 div#ownInfo {
 	position: absolute;
-	bottom:4px;
-	left:4px;
+	bottom:0px;
+	left:0px;
 	background-color: rgb(0, 51, 102);
 	padding:8px;
-	border-radius: 10px;
-	max-width: 200px;
-	width:20%;
-	color:lightgrey;
+
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    border-top-right-radius: 10px;
+	max-width: 200px;
+	width:20%;
+	color:lightgrey;
 }
 
 div#ownInfo p{

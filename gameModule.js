@@ -8,16 +8,17 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 
 router.post('/HTML/init', function (req, res) {
    if(req.body.gameId != undefined && req.body.gameId<games.length) {
+       var g = games[req.body.gameId];
        var index = -1;
        for(var i=0;i<4;i++){
-           if(games[req.body.gameId].players[i].username == req.session.username) {
+           if(g.players[i].username == req.session.username) {
                index = i;
                break;
            }
        }
        if(index>=0){
-           if(games[req.body.gameId].deck==undefined) initializeGame(req.body.gameId);
-           res.send({ onTable:games[req.body.gameId].onTable, players:games[req.body.gameId].players, turn: games[req.body.gameId].turn, cards:games[req.body.gameId].cards[index],team1P: 0, team2P: 0, you:index});
+           if(g.deck==undefined) initializeGame(req.body.gameId);
+           res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index});
            return;
        }
        res.send("Access denied");
@@ -114,6 +115,7 @@ function distributeCards(i) {
 function initializeGame(i) {
     shuffleCards(i);
     distributeCards(i);
+    games[i].begin = Date.now();
 }
 
 function initialize(g) {
