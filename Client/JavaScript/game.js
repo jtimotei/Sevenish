@@ -6,6 +6,8 @@ const cardPositions =
 	[{rotationAngle:-30,top:50, left:110}, {rotationAngle:-10,top:0,left:40}, 
 	{rotationAngle:10,top:0,left:-40}, {rotationAngle:30,top:50, left:-110}]];
 
+var rotationTableCards = [];
+
 function main() {
 	var turn=0;
 	$.ajax({
@@ -20,7 +22,6 @@ function main() {
 				game = xhr.responseJSON;
 				updateOwnCards();
 				updateTableCards();
-				updateCardsOtherPlayers();
 				poll();
 			}
 		}
@@ -58,7 +59,7 @@ function updateOwnCards() {
 	nrOfCardsInHand = game.cards.length;
 	for(var i=0;i<4;i++){
 		if(game.cards[i] != undefined) {
-			var img = $("<img>").attr({src:"../Resources/"+game.cards[i]+".png", 
+			var img = $("<img>").attr({src:"../Resources/Cards/"+game.cards[i]+".png", 
 				class:"cards", 
 				'data-nr':i, 
 				onclick:"selectCard(this)", 
@@ -74,22 +75,27 @@ function updateOwnCards() {
 	}
 }
 
-function updateCardsOtherPlayers() {
-	for(var i=0;i<3;i++) {
-		for(var j=0; j<4; j++) {
-			var img = $("<img>").attr({src:"../Resources/backCards.png", class:"cards"});
-			$("#player_"+(i+2)).append(img);
-		}
-
-	}
-}
 
 function updateTableCards() {
 	$("#table").empty();
-	if(game.onTable.length !=0) $("#table").append("<img src='../Resources/"+game.onTable[game.onTable.length-1]+".png' draggable='false' class='cards'>");
 
-	if(game.turn == game.you && game.onTable.length%4==0 && game.onTable.length>0) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/giveCards.ico");
+	if(game.onTable.length == 0) {
+		rotationTableCards = [];
+		return;
+	}
+
+	for(var i=0; i<game.onTable.length;i++) {
+		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false, class:"cards"});
+		if(rotationTableCards[i] == undefined) {
+			rotationTableCards.push(Math.random()*25-10);
+		}
+		img.css("transform", "translate(-50%, -50%) rotate("+rotationTableCards[i]+"deg)");
+		$("#table").append(img);
+	}
+	
+
+	if(game.turn == game.you && game.onTable.length%4==0) {
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.ico");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
 		$("#player_1").append(giveCardsIcon);
 	}

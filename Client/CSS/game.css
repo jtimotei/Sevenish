@@ -11,7 +11,8 @@ body{
 	height: 100%;
 	width: 100%;
 	font-size:100%;
-	background-color: darkgray;
+	background-color: rgb(0, 51, 0);
+	overflow:hidden;
 }
 
 #player_1 {
@@ -25,55 +26,81 @@ body{
 	width: 100%;
 	height: 20%;
 	text-align: center;
-	overflow: hidden;
+	position: relative;
+	overflow:hidden;
 	/*background-color: blue;*/
 }
 
 #player_2 {
 	display:inline-block;
-	width: 22%;
+	width: 23%;
 	height:48%;
 	overflow: hidden;
 	text-align: left;
+	position: relative;
+	float:left;
 	/*background-color: red;*/
 }
 
 #player_4 {
 	margin: 0px;
 	display:inline-block;
-	width:25%;
+	width:23%;
 	height:48%;
 	overflow: hidden;
+	position: relative;
+	float:right;
 	/*background-color: green;*/
 
 }
 
 #table {
 	display:inline-block;
-	width:51%;
+	width:50%;
 	height: 48%;
 	overflow:hidden;
-}
-img.cards {
-	border:3px solid rgba(0,0,0,0);
 	position:relative;
-	width:140px;
-	height:219px;
-	top:50%;
-	transform: translateY(-50%);
+}
+
+img.cards {
+	border-radius:1.4vmin;
+	width:200px;
+	height:313px;
 	z-index: 1;
 }
 
+#table img.cards {
+	position:absolute;
+	margin:auto;
+	top:50%;
+	left:50%;
+	-webkit-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
 
-#table img.cards, #player_1 img.cards{
-	width:200px;
-	height:313px;
-	z-index:2;
 }
 
-#table img.cards:hover, #player_1 img.cards:hover {
-	border-radius: 12px;
-	border:3px solid black;
+#table img.cards:hover {
+	cursor:zoom-in;
+}
+
+#player_1 img.cards {
+	margin:0.4vmin;
+	position:relative;
+	max-width: 23%;
+	max-height: 120%;
+	z-index: 2;
+	top:50%;
+	transform: translateY(-50%);
+
+	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+}
+
+#player_1 img.cards:hover {
+	margin:0.1vmin;
+	border:0.4vmin solid black;
 	cursor:pointer;
 }
 

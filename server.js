@@ -9,8 +9,8 @@ const http = require("http"),
     verify = require("./verifyInput"),
     gameModule = require("./gameModule.js");
     
-var playQueue = [{username:"Timo", date:"long ago"}, {username:"test1",date:"long ago"},{username:"test2",date:"long ago"},{username:"test3",date:"long ago"}];
-//var playQueue = [];
+//var playQueue = [{username:"Timo", date:"long ago"}, {username:"test1",date:"long ago"},{username:"test2",date:"long ago"},{username:"test3",date:"long ago"}];
+var playQueue = [];
 var games = [];
 var gameNr = 0;
 
