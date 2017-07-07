@@ -20,12 +20,20 @@ function main() {
 			else if(xhr.responseText == "Game not found") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
+				updateOtherPlayers();
 				updateOwnCards();
 				updateTableCards();
 				poll();
 			}
 		}
 	});
+}
+
+function updateOtherPlayers() {
+	for(var i=2;i<=4;i++){
+		$("#player_"+i+" div.userDivs").append("<img src='../Resources/Icons/teacher.png' class='icons'/>");
+		$("#player_"+i+" div.userDivs").append("<p>"+game.players[i-1].username+"</p>");
+	}
 }
 
 function poll() {
@@ -48,11 +56,6 @@ function poll() {
 		})
 	}, 2000);
 }
-
-/*function updateStand() {
-	$("#player_2").empty();
-	$("#player_2").html("Team 1: "+game.team1P+"<br>Team 2: "+game.team1P+"<br>Turn: "+game.players[game.turn].username);
-}*/
 
 function updateOwnCards() {
 	$("#player_1").empty();

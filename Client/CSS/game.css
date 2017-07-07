@@ -11,24 +11,21 @@ body{
 	height: 100%;
 	width: 100%;
 	font-size:100%;
-	background-color: rgb(0, 51, 0);
+	background-color: rgb(0, 26, 51);
 	overflow:hidden;
 }
 
 #player_1 {
 	height:33%;
 	width: 100%;
-	text-align: center;
 	position: relative;
 }
 
 #player_3 {
 	width: 100%;
 	height: 20%;
-	text-align: center;
 	position: relative;
 	overflow:hidden;
-	/*background-color: blue;*/
 }
 
 #player_2 {
@@ -36,10 +33,8 @@ body{
 	width: 23%;
 	height:48%;
 	overflow: hidden;
-	text-align: left;
 	position: relative;
 	float:left;
-	/*background-color: red;*/
 }
 
 #player_4 {
@@ -50,16 +45,47 @@ body{
 	overflow: hidden;
 	position: relative;
 	float:right;
-	/*background-color: green;*/
 
 }
 
 #table {
+	border-radius: 10px;
+	background-color: rgb(77, 77, 51);
+	-webkit-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
 	display:inline-block;
 	width:50%;
 	height: 48%;
 	overflow:hidden;
 	position:relative;
+}
+
+div.userDivs {
+	padding:8px;
+	position: relative;
+	border-radius: 10px;
+	top:50%;
+	left:50%;
+	transform: translate(-50%, -50%);
+	max-width: 200px;
+	color:rgb(153, 221, 255);
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.userDivs p{
+	margin-top:5px;
+	font-size:1.4em;
+	font-family:'Acme';
+}
+#player_2 div.userDivs, #player_4 div.userDivs {
+	background-color: rgb(128, 0, 0);
+} 
+
+#player_3 div.userDivs {
+	background-color: rgb(0, 51, 102);
 }
 
 img.cards {
@@ -102,6 +128,13 @@ img.cards {
 	margin:0.1vmin;
 	border:0.4vmin solid black;
 	cursor:pointer;
+}
+
+.icons{
+	max-width: 80%;
+	max-height: 90%;
+	height:128px;
+	width: 128px;
 }
 
 img#giveCards {
