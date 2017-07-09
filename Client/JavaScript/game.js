@@ -1,13 +1,29 @@
+// the variable that stores all the information regarding the game
 var game;
+
+// the number of cards in hand -> useful for determining the layout of the cards
 var nrOfCardsInHand;
+
+// how the own cards will be displayed
 const cardPositions = 
 	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
 	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
 	[{rotationAngle:-30,top:70, left:110}, {rotationAngle:-10,top:20,left:40}, 
 	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
 
+// how the messages will be displayed depending on sender
+const messagePositions = [{message:{top: 50, left: 19}, circle1:{top: 48, left: 17}, circle2:{top: 47, left: 15}},
+						{message:{top: 16, left: 58}, circle1:{top: 14, left: 56}, circle2:{top: 13, left: 54}},
+						{message:{top: 48, left: 70}, circle1:{top: 45, left: 78}, circle2:{top: 44, left: 80}}];
+
+// the variable stores the rotation angle of the cards on the table  
 var rotationTableCards = [];
 
+// this array keeps track of whether there is or not a message displayed at a player
+var messageDisplayed = [0, 0, 0]; 
+
+// the main function
+// initializes the game and calls the poll function
 function main() {
 	var turn=0;
 	$.ajax({
@@ -30,6 +46,69 @@ function main() {
 	});
 }
 
+var whatever=0;
+
+// the function that prints the messages send by the players
+function printMessage(text, date, playerIndex) {
+	var player = (4+(playerIndex-game.you))%4-1;
+	var textbox;
+	var circle1;
+	var circle2; 
+
+	if(messageDisplayed[player]==0) { 
+		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+player});
+		textbox.css({top:messagePositions[player].message.top+'%', left:messagePositions[player].message.left+'%'});
+		var circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+player});
+		circle1.css({top:messagePositions[player].circle1.top+'%', left:messagePositions[player].circle1.left+'%'});
+		var circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+player});
+		circle2.css({top:messagePositions[player].circle2.top+'%', left:messagePositions[player].circle2.left+'%'});
+		var message = $("<p>").attr("id", whatever);
+		whatever++;
+		message.text(text);
+		textbox.prepend(message);
+
+		textbox.hide();
+		circle1.hide();
+		circle2.hide();
+		$("body").append(textbox);
+		$("body").append(circle1);
+		$("body").append(circle2);
+		textbox.fadeIn();
+		circle1.fadeIn();
+		circle2.fadeIn();
+	}
+	else {
+		textbox = $("#textbox_"+(player));
+		circle1 = $("#circle1_"+(player));
+		circle2 = $("#circle2_"+(player));
+		var message = $("<p>").attr("id", date);
+		if(messageDisplayed[player]>1) {
+			textbox.children().last().remove();
+			messageDisplayed[player]--;
+		}
+		message.text(text);
+		message.hide();
+		textbox.prepend(message);
+		message.fadeIn();
+	}
+
+	messageDisplayed[player]++;
+
+	/*setTimeout(function() {
+		if(message.parent().length > 0) {
+			messageDisplayed[player]--;
+			if(messageDisplayed[player]==0) {
+				$(circle1).fadeOut("normal", function() { circle1.remove(); });
+				$(circle2).fadeOut("normal", function() { circle2.remove(); });
+				$(textbox).fadeOut("normal", function() { textbox.remove(); });
+			} else{			
+				message.fadeOut();
+			}
+		}
+	}, 5500);*/
+}
+
+// this method updates the score seen in the upper-left corner of the window
 function updateScore() {
 	$("div#score").empty();
 	if(game.you%2==0) {
@@ -40,6 +119,7 @@ function updateScore() {
 	}
 }
 
+// this method is used to update the icon and username of the other players
 function updateOtherPlayers() {
 	var i=game.you;
 	$("#ownInfo").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");

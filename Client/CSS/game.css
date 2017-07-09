@@ -32,6 +32,7 @@ div#score {
 	position: relative;
 }
 
+
 #player_3 {
 	width: 100%;
 	height: 23%;
@@ -190,4 +191,47 @@ div#ownInfo p{
 	top:2px;
 	width:30px;
 	height:30px;
+}
+
+div.circle {
+	z-index:2;
+	position: absolute;
+	background-color: rgba(256, 256, 256, 0.8);
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.circle1 {
+
+	height:14px;
+	width:14px;
+	border-radius: 7px;
+}
+
+div.circle2 {
+	height:10px;
+	width:10px;
+	border-radius: 5px;
+}
+
+div.textbox {
+	z-index:3;
+	position:absolute;
+	top:50%;
+	left:19%;
+	color:black;
+	background-color: rgba(256, 256, 256, 0.8);
+	border-radius:10px;
+	width: 200px;
+	text-align: left;
+	padding:10px;
+	font-size: 12px;
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.textbox p{
+	margin:5px 0px 5px 0px;
 }
