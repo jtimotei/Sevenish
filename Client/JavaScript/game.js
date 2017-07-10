@@ -40,6 +40,7 @@ function main() {
 				updateOwnCards();
 				updateTableCards();
 				updateScore();
+				displayMessages();
 				poll();
 			}
 		}
@@ -69,6 +70,11 @@ window.adapt = function() {
 }
 
 
+function displayMessages() {
+	for(var i=0;i<game.inbox.length; i++) {
+		printMessage(game.inbox[i].message, 0, game.inbox[i].sender);
+	}
+}
 
 // the function that prints the messages send by the players
 function printMessage(text, date, playerIndex) {
@@ -179,7 +185,7 @@ function poll() {
 					game = xhr.responseJSON;
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
-
+					displayMessages();
 				}
 			}
 		})
@@ -284,5 +290,17 @@ window.document.emptyTable = function() {
 			}
 		});
 	}
+
+var chats = ["Hello!", "GG WP!", "Try again."];
+$("body").on("keypress", function(event) {
+	if(event.keyCode >= 49 && event.keyCode <=51) {
+		$.ajax({
+			type: "POST",
+			url: "/HTML/chat",
+			data: {gameId:window.location.search.substring(3), message: chats[event.keyCode - 49]},
+			dataType: 'json'
+		});
+	}
+})
 
 $(document).ready(main);

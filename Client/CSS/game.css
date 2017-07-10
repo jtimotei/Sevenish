@@ -217,8 +217,8 @@ div.circle2 {
 div.textbox {
 	z-index:3;
 	position:absolute;
-	color:black;
-	background-color: rgba(256, 256, 256, 0.8);
+	color:rgba(0, 0, 0, 0.7);
+	background-color: rgba(256, 256, 256, 0.7);
 	border-radius:10px;
 	width:25%;
 	max-width:300px;
@@ -228,6 +228,12 @@ div.textbox {
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    overflow:hidden;
+}
+
+div.textbox:hover{
+	color:black;
+	background-color: white;
 }
 
 div.textbox p{

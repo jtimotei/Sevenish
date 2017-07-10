@@ -9,7 +9,7 @@ const http = require("http"),
     verify = require("./verifyInput"),
     gameModule = require("./gameModule.js");
     
-var playQueue = [{username:"Timo", date:"long ago", icon:"ninja"}, {username:"test1",date:"long ago", icon:"teacher"},{username:"test2",date:"long ago", icon:"professor"},{username:"test3",date:"long ago", icon:"nurse"}];
+var playQueue = [{username:"Timo", date:"long ago", icon:"ninja", inbox:[]}, {username:"test1",date:"long ago", icon:"teacher", inbox:[]},{username:"test2",date:"long ago", icon:"professor", inbox:[]},{username:"test3",date:"long ago", icon:"nurse", inbox:[]}];
 //var playQueue = [];
 var games = [];
 var gameNr = 0;
@@ -115,7 +115,7 @@ app.get("/HTML/logOut", function(req, res){
 });
 
 app.post("/HTML/playQueue", function(req, res, next) {
-    playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent});
+    playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
     res.send();
 });
 
