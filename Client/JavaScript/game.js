@@ -12,9 +12,9 @@ const cardPositions =
 	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
 
 // how the messages will be displayed depending on sender
-const messagePositions = [{message:{top: 50, left: 19}, circle1:{top: 48, left: 17}, circle2:{top: 47, left: 15}},
-						{message:{top: 16, left: 58}, circle1:{top: 14, left: 56}, circle2:{top: 13, left: 54}},
-						{message:{top: 48, left: 70}, circle1:{top: 45, left: 78}, circle2:{top: 44, left: 80}}];
+const messagePositions = [{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
+						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
+						{message:{top: 145, left: -200}, circle1:{top: 120, left: 30}, circle2:{top: 105, left: 45}}];
 
 // the variable stores the rotation angle of the cards on the table  
 var rotationTableCards = [];
@@ -46,7 +46,29 @@ function main() {
 	});
 }
 
-var whatever=0;
+window.adaptMessagePositions = function() {
+	for(var player=2; player<=4; player++) {
+		if(messageDisplayed[player-2]) {
+			var playerDiv = document.querySelector("#player_"+player+" div.userDivs").getBoundingClientRect();		
+			var textbox = $("#textbox_"+(player));
+			var circle1 = $("#circle1_"+(player));
+			var circle2 = $("#circle2_"+(player));
+
+			textbox.css({"top":playerDiv.top + messagePositions[player-2].message.top, 
+				"left":playerDiv.left + messagePositions[player-2].message.left});
+			circle1.css({"top":playerDiv.top + messagePositions[player-2].circle1.top, 
+				"left":playerDiv.left + messagePositions[player-2].circle1.left});
+			circle2.css({"top":playerDiv.top + messagePositions[player-2].circle2.top, 
+				"left":playerDiv.left + messagePositions[player-2].circle2.left});
+		}
+	}
+}
+
+window.adapt = function() {
+	adaptMessagePositions();
+}
+
+
 
 // the function that prints the messages send by the players
 function printMessage(text, date, playerIndex) {
@@ -56,14 +78,19 @@ function printMessage(text, date, playerIndex) {
 	var circle2; 
 
 	if(messageDisplayed[player]==0) { 
-		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+player});
-		textbox.css({top:messagePositions[player].message.top+'%', left:messagePositions[player].message.left+'%'});
-		var circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+player});
-		circle1.css({top:messagePositions[player].circle1.top+'%', left:messagePositions[player].circle1.left+'%'});
-		var circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+player});
-		circle2.css({top:messagePositions[player].circle2.top+'%', left:messagePositions[player].circle2.left+'%'});
-		var message = $("<p>").attr("id", whatever);
-		whatever++;
+		var playerDiv = document.querySelector("#player_"+(player+2)+" div.userDivs").getBoundingClientRect();
+
+		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+(player+2)});
+		circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+(player+2)});
+		circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+(player+2)});
+		textbox.css({"top":(playerDiv.top + messagePositions[player].message.top), 
+			"left":(playerDiv.left + messagePositions[player].message.left)}); 
+		circle1.css({"top":(playerDiv.top + messagePositions[player].circle1.top), 
+			"left":(playerDiv.left + messagePositions[player].circle1.left)});
+		circle2.css({"top":(playerDiv.top + messagePositions[player].circle2.top), 
+			"left":(playerDiv.left + messagePositions[player].circle2.left)});
+
+		var message = $("<p>").attr("id", date);
 		message.text(text);
 		textbox.prepend(message);
 
@@ -94,7 +121,7 @@ function printMessage(text, date, playerIndex) {
 
 	messageDisplayed[player]++;
 
-	/*setTimeout(function() {
+	setTimeout(function() {
 		if(message.parent().length > 0) {
 			messageDisplayed[player]--;
 			if(messageDisplayed[player]==0) {
@@ -105,7 +132,7 @@ function printMessage(text, date, playerIndex) {
 				message.fadeOut();
 			}
 		}
-	}, 5500);*/
+	}, 5500);
 }
 
 // this method updates the score seen in the upper-left corner of the window

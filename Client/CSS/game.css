@@ -203,7 +203,6 @@ div.circle {
 }
 
 div.circle1 {
-
 	height:14px;
 	width:14px;
 	border-radius: 7px;
@@ -218,15 +217,14 @@ div.circle2 {
 div.textbox {
 	z-index:3;
 	position:absolute;
-	top:50%;
-	left:19%;
 	color:black;
 	background-color: rgba(256, 256, 256, 0.8);
 	border-radius:10px;
-	width: 200px;
+	width:25%;
+	max-width:300px;
 	text-align: left;
 	padding:10px;
-	font-size: 12px;
+	font-size: 14px;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
