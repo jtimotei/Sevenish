@@ -11,54 +11,225 @@ body{
 	height: 100%;
 	width: 100%;
 	font-size:100%;
-	background-color: #2B2C2F;
-	overflow: hidden;
+	background-color: rgb(0, 26, 51);
+	overflow:hidden;
+}
+
+div#score {
+	padding:10px;
+	text-align: left;
+	color:grey;
+	font-family: "Righteous";
+	position:fixed;
+	top:0px;
+	left:0px;
+	margin:0px;
 }
 
 #player_1 {
 	height:33%;
 	width: 100%;
-	text-align: center;
+	position: relative;
 }
+
 
 #player_3 {
 	width: 100%;
-	height: 20%;
-	text-align: center;
-	/*background-color: blue;*/
+	height: 23%;
+	position: relative;
+	overflow:hidden;
 }
 
 #player_2 {
 	display:inline-block;
-	width: 22%;
-	height:48%;
-	/*background-color: red;*/
+	width: 23%;
+	height:45%;
+	overflow: hidden;
+	position: relative;
+	float:left;
 }
 
 #player_4 {
 	margin: 0px;
 	display:inline-block;
-	width:25%;
-	height:48%;
-	/*background-color: green;*/
+	width:23%;
+	height:45%;
+	overflow: hidden;
+	position: relative;
+	float:right;
 
 }
 
 #table {
+	border-radius: 10px;
+	background-color: rgb(77, 77, 51);
+	-webkit-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
 	display:inline-block;
-	width:51%;
-	height: 48%;
-	background-color: yellow;
+	width:50%;
+	height: 45%;
+	overflow:hidden;
+	position:relative;
 }
+
+div.userDivs {
+	padding:8px;
+	position: relative;
+	border-radius: 10px;
+	top:50%;
+	left:50%;
+	transform: translate(-50%, -50%);
+	max-width: 200px;
+	color:lightgrey;
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.userDivs p{
+	margin-top:5px;
+	font-size:1.4em;
+	font-family:'Anton';
+}
+
+#player_2 div.userDivs, #player_4 div.userDivs {
+	background-color: rgb(128, 0, 0);
+} 
+
+#player_3 div.userDivs {
+	background-color: rgb(0, 51, 102);
+}
+
 img.cards {
-	margin:3px;
+	border-radius:1.4vmin;
 	width:200px;
 	height:313px;
+	z-index: 1;
 }
-img.cards:hover {
-	margin:0px;
-	border-radius: 14px;
-	border:3px solid rgba(0,0,0,0.5);
+
+#table img.cards {
+	position:absolute;
+	margin:auto;
+	top:50%;
+	left:50%;
+	-webkit-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+
+}
+
+#table img.cards:hover {
+	cursor:zoom-in;
+}
+
+#player_1 img.cards {
+	margin:0.4vmin;
+	position:relative;
+	max-width: 23%;
+	max-height: 120%;
+	z-index: 2;
+
+	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+}
+
+#player_1 img.cards:hover {
+	margin:0.1vmin;
+	border:0.4vmin solid black;
 	cursor:pointer;
 }
 
+.icons{
+	max-width: 80%;
+	max-height: 90%;
+	height:128px;
+	width: 128px;
+}
+
+img#giveCards {
+	position:absolute;
+	max-height: 80px;
+	max-width: 80px;
+	bottom:30px;
+	right:30px;
+	border:4px solid rgba(0,0,0,0);
+}
+
+img#giveCards:hover {
+	border:4px solid white;
+	border-radius: 50px;
+	cursor: pointer;
+}
+
+div#ownInfo {
+	position: absolute;
+	bottom:0px;
+	left:0px;
+	background-color: rgb(0, 51, 102);
+	padding:8px;
+
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    border-top-right-radius: 10px;
+	max-width: 200px;
+	width:20%;
+	color:lightgrey;
+}
+
+div#ownInfo p{
+	margin-top:5px;
+	font-size:1.4em;
+	font-family:'Anton';
+}
+
+#turnIcon {
+	position:absolute;
+	left:70%;
+	top:2px;
+	width:30px;
+	height:30px;
+}
+
+div.circle {
+	z-index:2;
+	position: absolute;
+	background-color: rgba(256, 256, 256, 0.8);
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.circle1 {
+	height:14px;
+	width:14px;
+	border-radius: 7px;
+}
+
+div.circle2 {
+	height:10px;
+	width:10px;
+	border-radius: 5px;
+}
+
+div.textbox {
+	z-index:3;
+	position:absolute;
+	color:black;
+	background-color: rgba(256, 256, 256, 0.8);
+	border-radius:10px;
+	width:25%;
+	max-width:300px;
+	text-align: left;
+	padding:10px;
+	font-size: 14px;
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+}
+
+div.textbox p{
+	margin:5px 0px 5px 0px;
+}
