@@ -71,13 +71,18 @@ window.adapt = function() {
 
 
 function displayMessages() {
+	var now = new Date().getTime();
 	for(var i=0;i<game.inbox.length; i++) {
-		printMessage(game.inbox[i].message, 0, game.inbox[i].sender);
+		var date = new Date(game.inbox[i].date);
+		if(now - date.getTime() < 60000) {
+			var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
+ 			printMessage(message, game.inbox[i].sender);
+		}
 	}
 }
 
 // the function that prints the messages send by the players
-function printMessage(text, date, playerIndex) {
+function printMessage(text, playerIndex) {
 	var player = (4+(playerIndex-game.you))%4-1;
 	var textbox;
 	var circle1;
@@ -96,8 +101,7 @@ function printMessage(text, date, playerIndex) {
 		circle2.css({"top":(playerDiv.top + messagePositions[player].circle2.top), 
 			"left":(playerDiv.left + messagePositions[player].circle2.left)});
 
-		var message = $("<p>").attr("id", date);
-		message.text(text);
+		var message = $("<p>").text(text);
 		textbox.prepend(message);
 
 		textbox.hide();
@@ -114,12 +118,11 @@ function printMessage(text, date, playerIndex) {
 		textbox = $("#textbox_"+(player+2));
 		circle1 = $("#circle1_"+(player+2));
 		circle2 = $("#circle2_"+(player+2));
-		var message = $("<p>").attr("id", date);
-		if(messageDisplayed[player]>1) {
+		var message = $("<p>").text(text);
+		if(messageDisplayed[player]>2) {
 			textbox.children().last().remove();
 			messageDisplayed[player]--;
 		}
-		message.text(text);
 		message.hide();
 		textbox.prepend(message);
 		message.fadeIn();
@@ -185,7 +188,7 @@ function poll() {
 					game = xhr.responseJSON;
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
-					displayMessages();
+					if(game.inbox.length !=0) displayMessages();
 				}
 			}
 		})
@@ -320,7 +323,7 @@ $("body").on("keypress", function(event) {
 			$.ajax({
 				type: "POST",
 				url: "/HTML/chat",
-				data: {gameId:window.location.search.substring(3), message: inputVal},
+				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
 				dataType: 'json'
 			});
 		}

@@ -34,7 +34,7 @@ router.post("/HTML/chat", function(req, res){
         res.send("Game not found");
         return;
     } 
-    
+
     if(req.body.message == undefined || req.body.message.length == 0 || req.body.message.length > 50) {
         res.send();
         return;
@@ -45,7 +45,7 @@ router.post("/HTML/chat", function(req, res){
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<4; i++) {
                 if(i!=j) {
-                    g.players[i].inbox.push({sender:j, message:req.body.message});
+                    g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
                 }
             }
         }
