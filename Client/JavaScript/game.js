@@ -105,9 +105,9 @@ function printMessage(text, date, playerIndex) {
 		circle2.fadeIn();
 	}
 	else {
-		textbox = $("#textbox_"+(player));
-		circle1 = $("#circle1_"+(player));
-		circle2 = $("#circle2_"+(player));
+		textbox = $("#textbox_"+(player+2));
+		circle1 = $("#circle1_"+(player+2));
+		circle2 = $("#circle2_"+(player+2));
 		var message = $("<p>").attr("id", date);
 		if(messageDisplayed[player]>1) {
 			textbox.children().last().remove();
