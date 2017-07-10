@@ -239,9 +239,19 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%4==0) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.ico");
-		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
+		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter: "changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);
+	}
+}
+
+window.document.changeIcon = function() {
+	var icon = $("img#giveCards");
+	if(icon.attr("src") == "../Resources/Icons/giveCards.png") {
+		icon.attr("src", "../Resources/Icons/giveCardsHover.png");
+	}
+	else {
+		icon.attr("src", "../Resources/Icons/giveCards.png");		
 	}
 }
 
