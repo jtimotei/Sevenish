@@ -291,15 +291,39 @@ window.document.emptyTable = function() {
 		});
 	}
 
-var chats = ["Hello!", "GG WP!", "Try again."];
+window.document.removeInput = function() {
+	var input = $("input#chat");
+	var inputVal = input.val();
+	var remove = true;
+	for(var i=0; i<inputVal.length;i++) {
+		if(inputVal[i] != ' ') {
+			remove = false;
+			break;
+		}
+	}
+
+	if(remove) {
+		input.fadeOut(100, function() {input.val("");});
+	}
+}
+
 $("body").on("keypress", function(event) {
-	if(event.keyCode >= 49 && event.keyCode <=51) {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/chat",
-			data: {gameId:window.location.search.substring(3), message: chats[event.keyCode - 49]},
-			dataType: 'json'
-		});
+	var input = $("input#chat");
+	var inputVal = input.val();
+	if(event.keyCode == 13) {
+		if(input.css("display") == "none"){
+			$("input#chat").fadeIn(100);
+			$("input#chat").focus();
+		}
+		else {
+			input.fadeOut(100, function() {input.val("");});
+			$.ajax({
+				type: "POST",
+				url: "/HTML/chat",
+				data: {gameId:window.location.search.substring(3), message: inputVal},
+				dataType: 'json'
+			});
+		}
 	}
 })
 

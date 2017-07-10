@@ -33,6 +33,11 @@ router.post("/HTML/chat", function(req, res){
     if(req.body.gameId == undefined || games.length <= req.body.gameId) {
         res.send("Game not found");
         return;
+    } 
+    
+    if(req.body.message == undefined || req.body.message.length == 0 || req.body.message.length > 50) {
+        res.send();
+        return;
     }
 
     var g = games[req.body.gameId];
@@ -138,7 +143,6 @@ function distributeCards(i) {
 function initializeGame(i) {
     shuffleCards(i);
     distributeCards(i);
-    games[i].begin = Date.now();
 }
 
 function initialize(g) {

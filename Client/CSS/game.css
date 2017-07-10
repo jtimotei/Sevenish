@@ -169,7 +169,7 @@ div#ownInfo {
 	left:0px;
 	background-color: rgb(0, 51, 102);
 	padding:8px;
-
+	z-index:1;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -194,7 +194,7 @@ div#ownInfo p{
 }
 
 div.circle {
-	z-index:2;
+	z-index:3;
 	position: absolute;
 	background-color: rgba(256, 256, 256, 0.8);
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -217,14 +217,14 @@ div.circle2 {
 div.textbox {
 	z-index:3;
 	position:absolute;
-	color:rgba(0, 0, 0, 0.7);
-	background-color: rgba(256, 256, 256, 0.7);
+	color:black;
+	background-color: rgba(256, 256, 256, 0.8);
 	border-radius:10px;
 	width:25%;
 	max-width:300px;
 	text-align: left;
 	padding:10px;
-	font-size: 14px;
+	font-size: 16px;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -238,4 +238,33 @@ div.textbox:hover{
 
 div.textbox p{
 	margin:5px 0px 5px 0px;
+}
+
+input#chat {
+	display:none;
+	z-index:4;
+	font-family: Arial;
+	background-color:rgba(0,0,0,0.7);
+	color:rgba(256,256,256, 0.7);
+	font-size: 14px;
+	font-weight: bold;
+    width: 30%;
+    padding: 5px 10px;
+    margin: 8px;
+    border: 3px solid rgba(0,0,0,0);
+    box-sizing: border-box;
+    position:fixed;
+    bottom:10px;
+    right:10px;
+}
+
+input#chat:hover{
+	color:white;
+	background-color: black;
+}  
+
+input#chat:focus{
+	outline:none;
+	color:white;
+	background-color: black;
 }
