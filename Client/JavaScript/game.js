@@ -294,6 +294,8 @@ window.document.emptyTable = function() {
 		});
 	}
 
+var inputFocused;
+
 window.document.removeInput = function() {
 	var input = $("input#chat");
 	var inputVal = input.val();
@@ -308,18 +310,27 @@ window.document.removeInput = function() {
 	if(remove) {
 		input.fadeOut(100, function() {input.val("");});
 	}
+	else {
+		inputFocused = false;
+	}
 }
 
 $("body").on("keypress", function(event) {
-	var input = $("input#chat");
-	var inputVal = input.val();
 	if(event.keyCode == 13) {
+		var input = $("input#chat");
+		var inputVal = input.val();
 		if(input.css("display") == "none"){
-			$("input#chat").fadeIn(100);
-			$("input#chat").focus();
+			input.fadeIn(100);
+			input.focus();
+			inputFocused = true;
+		}
+		else if(!inputFocused) {
+			input.focus();
+			inputFocused = true;
 		}
 		else {
 			input.fadeOut(100, function() {input.val("");});
+			inputFocused = false;
 			$.ajax({
 				type: "POST",
 				url: "/HTML/chat",
