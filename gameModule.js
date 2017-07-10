@@ -6,6 +6,8 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 "10_of_clubs","10_of_diamonds","10_of_hearts","10_of_spades","jack_of_clubs2","jack_of_diamonds2","jack_of_hearts2","jack_of_spades2","queen_of_clubs2","queen_of_diamonds","queen_of_hearts2",
 "queen_of_spades2","king_of_clubs2","king_of_diamonds2","king_of_hearts2","king_of_spades2","ace_of_clubs","ace_of_diamonds","ace_of_hearts","ace_of_spades"];
 
+var chatMessages = [];
+
 router.post('/HTML/init', function (req, res) {
    if(req.body.gameId != undefined && req.body.gameId<games.length) {
        var g = games[req.body.gameId];
@@ -18,13 +20,38 @@ router.post('/HTML/init', function (req, res) {
        }
        if(index>=0){
            if(g.deck==undefined) initializeGame(req.body.gameId);
-           res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index});
+           res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
            return;
        }
        res.send("Access denied");
        
     }
     res.send("Game not found");
+});
+
+router.post("/HTML/chat", function(req, res){
+    if(req.body.gameId == undefined || games.length <= req.body.gameId) {
+        res.send("Game not found");
+        return;
+    } 
+
+    if(req.body.message == undefined || req.body.message.length == 0 || req.body.message.length > 50) {
+        res.send();
+        return;
+    }
+
+    var g = games[req.body.gameId];
+     for(var j=0;j<4;j++) {
+        if(req.session.username == g.players[j].username) {
+            for(var i=0; i<4; i++) {
+                if(i!=j) {
+                    g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
+                }
+            }
+        }
+    }
+    res.send();
+
 });
 
 router.post('/HTML/putCardOnTable', function(req, res) {
@@ -36,7 +63,7 @@ router.post('/HTML/putCardOnTable', function(req, res) {
             addPoints(req.body.gameId);
             distributeCards(req.body.gameId);
             g.onTable = [];
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index});
+            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
         } 
         else if(g.cards[index][req.body.card] != undefined) {
             if(g.onTable.length > 0 && g.cards[index][req.body.card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][req.body.card].substring(0,1) == '7') g.holder=index;
@@ -48,7 +75,7 @@ router.post('/HTML/putCardOnTable', function(req, res) {
             g.cards[index].splice(req.body.card,1);
             if(g.turn == 3) g.turn = 0;
             else g.turn++;
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index});
+            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
         }
     }
     else{
@@ -77,8 +104,9 @@ router.post('/HTML/getGameState', function(req, res) {
     var g = games[req.body.gameId];
     for(var j=0;j<4;j++) {
         if(req.session.username == g.players[j].username) {
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j});
-            return
+            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox});
+            g.players[j].inbox=[];
+            return;
         }
     }
     res.send("Not authorized");
@@ -115,7 +143,6 @@ function distributeCards(i) {
 function initializeGame(i) {
     shuffleCards(i);
     distributeCards(i);
-    games[i].begin = Date.now();
 }
 
 function initialize(g) {

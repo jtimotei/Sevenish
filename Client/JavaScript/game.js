@@ -40,6 +40,7 @@ function main() {
 				updateOwnCards();
 				updateTableCards();
 				updateScore();
+				displayMessages();
 				poll();
 			}
 		}
@@ -69,9 +70,19 @@ window.adapt = function() {
 }
 
 
+function displayMessages() {
+	var now = new Date().getTime();
+	for(var i=0;i<game.inbox.length; i++) {
+		var date = new Date(game.inbox[i].date);
+		if(now - date.getTime() < 60000) {
+			var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
+ 			printMessage(message, game.inbox[i].sender);
+		}
+	}
+}
 
 // the function that prints the messages send by the players
-function printMessage(text, date, playerIndex) {
+function printMessage(text, playerIndex) {
 	var player = (4+(playerIndex-game.you))%4-1;
 	var textbox;
 	var circle1;
@@ -90,8 +101,7 @@ function printMessage(text, date, playerIndex) {
 		circle2.css({"top":(playerDiv.top + messagePositions[player].circle2.top), 
 			"left":(playerDiv.left + messagePositions[player].circle2.left)});
 
-		var message = $("<p>").attr("id", date);
-		message.text(text);
+		var message = $("<p>").text(text);
 		textbox.prepend(message);
 
 		textbox.hide();
@@ -108,12 +118,11 @@ function printMessage(text, date, playerIndex) {
 		textbox = $("#textbox_"+(player+2));
 		circle1 = $("#circle1_"+(player+2));
 		circle2 = $("#circle2_"+(player+2));
-		var message = $("<p>").attr("id", date);
-		if(messageDisplayed[player]>1) {
+		var message = $("<p>").text(text);
+		if(messageDisplayed[player]>2) {
 			textbox.children().last().remove();
 			messageDisplayed[player]--;
 		}
-		message.text(text);
 		message.hide();
 		textbox.prepend(message);
 		message.fadeIn();
@@ -179,7 +188,7 @@ function poll() {
 					game = xhr.responseJSON;
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
-
+					if(game.inbox.length !=0) displayMessages();
 				}
 			}
 		})
@@ -284,5 +293,52 @@ window.document.emptyTable = function() {
 			}
 		});
 	}
+
+var inputFocused;
+
+window.document.removeInput = function() {
+	var input = $("input#chat");
+	var inputVal = input.val();
+	var remove = true;
+	for(var i=0; i<inputVal.length;i++) {
+		if(inputVal[i] != ' ') {
+			remove = false;
+			break;
+		}
+	}
+
+	if(remove) {
+		input.fadeOut(100, function() {input.val("");});
+	}
+	else {
+		inputFocused = false;
+	}
+}
+
+$("body").on("keypress", function(event) {
+	if(event.keyCode == 13) {
+		var input = $("input#chat");
+		var inputVal = input.val();
+		if(input.css("display") == "none"){
+			input.fadeIn(100);
+			input.focus();
+			inputFocused = true;
+		}
+		else if(!inputFocused) {
+			input.focus();
+			inputFocused = true;
+		}
+		else {
+			input.fadeOut(100, function() {input.val("");});
+			inputFocused = false;
+			$.ajax({
+				type: "POST",
+				url: "/HTML/chat",
+				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
+				dataType: 'json'
+			});
+		}
+	}
+})
 
 $(document).ready(main);
