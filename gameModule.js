@@ -95,6 +95,22 @@ function addPoints(index) {
     }
 }
 
+function checkGameEnding(req, res, index) {
+    var g = games[req.body.gameId];
+    if(g.nrDistributedCards == 32 && g.cards[0].length == 0 && g.cards[1].length == 0 && g.cards[2].length == 0 && g.cards[3].length == 0) {
+        if(g.onTable.length != 0) {
+            addPoints(req.body.gameId);
+            g.onTable=[];
+        }
+
+        if(g.team1P == g.team2P) res.send({result:"Draw.", team1P:g.team1P, team2P:g.team2P});
+        else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) res.send({result:"You won!", team1P:g.team1P, team2P:g.team2P});
+        else res.send({result:"You lost!", team1P:g.team1P, team2P:g.team2P});
+        return true;
+    }
+    else return false;
+}
+
 router.post('/HTML/getGameState', function(req, res) {
     if(req.body.gameId == undefined || games.length <= req.body.gameId) {
         res.send("Game not found");
@@ -104,6 +120,7 @@ router.post('/HTML/getGameState', function(req, res) {
     var g = games[req.body.gameId];
     for(var j=0;j<4;j++) {
         if(req.session.username == g.players[j].username) {
+            if(checkGameEnding(req, res, j)) return;
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox});
             g.players[j].inbox=[];
             return;

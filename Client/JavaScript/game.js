@@ -22,6 +22,8 @@ var rotationTableCards = [];
 // this array keeps track of whether there is or not a message displayed at a player
 var messageDisplayed = [0, 0, 0]; 
 
+var pollInterval;
+
 // the main function
 // initializes the game and calls the poll function
 function main() {
@@ -68,7 +70,6 @@ window.adaptMessagePositions = function() {
 window.adapt = function() {
 	adaptMessagePositions();
 }
-
 
 function displayMessages() {
 	var now = new Date().getTime();
@@ -174,15 +175,36 @@ function updateTurnIcon() {
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
+function endGame(response) {
+	clearInterval(pollInterval);
+	var endGameMessage = $("<div>").attr("id","endGameMessage");
+	var text = $("<p>").text(response.result);
+	var button = $("<div>").text("Main menu");
+	button.attr("onclick", "window.location.href = '/HTML/menu.html'");
+	endGameMessage.append(text);
+	endGameMessage.append(button);
+	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen2"});
+	blackScreen.append(endGameMessage);
+	game.team1P = response.team1P;
+	game.team2P = response.team2P;
+	updateScore();
+	$("body").append(blackScreen);
+	blackScreen.fadeIn();
+}
+
 function poll() {
-	setInterval(function() {
+	pollInterval = setInterval(function() {
 		$.ajax({
 			type: "POST",
 			url: "/HTML/getGameState",
 			data: {gameId:window.location.search.substring(3)},
 			dataType: 'json',
 			complete: function(xhr) {
-				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {
+				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
+					if(xhr.responseJSON.result != undefined) {
+						endGame(xhr.responseJSON);
+						return;
+					}
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
@@ -216,6 +238,33 @@ function updateOwnCards() {
 	}
 }
 
+window.document.zoomOutCards = function() {
+	var blackScreen = $("div#blackScreen1");
+	blackScreen.fadeOut(200, function() {
+		blackScreen.remove();
+	});
+}
+
+window.document.zoomInCards = function() {
+	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen1", onclick:"zoomOutCards()"});
+	var p = $("<p>");
+	for(var i=0;i<game.onTable.length;i++) {
+		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false});
+		p.append(img);
+		if(i%4==3 || i == game.onTable.length-1){
+			blackScreen.append(p);
+			p = $("<p>");
+		}	
+	}
+	$("body").append(blackScreen);
+	blackScreen.fadeIn(300);
+}
+
+window.document.changeIcon = function() {
+	var img = $("#giveCards");
+	if(img.attr("src") == "../Resources/Icons/giveCards.png") img.attr("src", "../Resources/Icons/giveCardsHover.png");
+	else img.attr("src", "../Resources/Icons/giveCards.png");
+}
 
 function updateTableCards() {
 	$("#table").empty();
@@ -223,13 +272,15 @@ function updateTableCards() {
 	updateScore();
 	updateTurnIcon();
 	
+	window.document.zoomOutCards();
+
 	if(game.onTable.length == 0) {
 		rotationTableCards = [];
 		return;
 	}
 
 	for(var i=0; i<game.onTable.length;i++) {
-		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false, class:"cards"});
+		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", onclick:"zoomInCards()", draggable:false, class:"cards"});
 		if(rotationTableCards[i] == undefined) {
 			rotationTableCards.push(Math.random()*25-10);
 		}
@@ -239,8 +290,8 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%4==0) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.ico");
-		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
+		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);
 	}
 }
@@ -316,7 +367,8 @@ window.document.removeInput = function() {
 }
 
 $("body").on("keypress", function(event) {
-	if(event.keyCode == 13) {
+	var blackScreen = $("div.blackScreen");
+	if(event.keyCode == 13 && blackScreen.parent().length==0) {
 		var input = $("input#chat");
 		var inputVal = input.val();
 		if(input.css("display") == "none"){
