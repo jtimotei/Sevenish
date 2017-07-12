@@ -13,7 +13,7 @@ body{
 	font-size:100%;
 
 	text-align: center;
-	background-image: url("../HTML/background.jpg");
+	background-image: url("../Resources/Backgrounds/bk.jpg");
 	background-attachment: fixed ;
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -73,7 +73,7 @@ input {
 
 input:hover{
 	transition: 0.7s;
-	border-bottom:2px solid #cc8500;
+	border-bottom:2px solid rgb(0, 0, 102);
 }  
 input:focus{
 	transition: 0.7s;
@@ -97,7 +97,7 @@ div#submit{
 }
 
 div#sign:hover, div#submit:hover{
-	background-color: #cc8500;
+	background-color: rgb(0, 0, 102);
 	transition:0.7s;
 }
 

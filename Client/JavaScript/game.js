@@ -22,6 +22,8 @@ var rotationTableCards = [];
 // this array keeps track of whether there is or not a message displayed at a player
 var messageDisplayed = [0, 0, 0]; 
 
+var pollInterval;
+
 // the main function
 // initializes the game and calls the poll function
 function main() {
@@ -174,15 +176,28 @@ function updateTurnIcon() {
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
+function endGame(response) {
+	clearInterval(pollInterval);
+	var endGameMessage = $("<div>").attr("id","endGameMessage");
+	var text = $("<p>").text(response.substring(9));
+	var button = $("<div>").text("Close window");
+	button.attr("onclick", "window.close()");
+	endGameMessage.append(text);
+	endGameMessage.append(button);
+	$("#blackScreen").append(endGameMessage);
+	$("#blackScreen").fadeIn();
+}
+
 function poll() {
-	setInterval(function() {
+	pollInterval = setInterval(function() {
 		$.ajax({
 			type: "POST",
 			url: "/HTML/getGameState",
 			data: {gameId:window.location.search.substring(3)},
 			dataType: 'json',
 			complete: function(xhr) {
-				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {
+				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
+					if(xhr.responseText.substring(0, 8) == "End game") endGame(xhr.responseText);
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
@@ -216,6 +231,9 @@ function updateOwnCards() {
 	}
 }
 
+window.document.zoomInCards = function() {
+	$("div#blackScreen").fadeIn();
+}
 
 function updateTableCards() {
 	$("#table").empty();
@@ -229,7 +247,7 @@ function updateTableCards() {
 	}
 
 	for(var i=0; i<game.onTable.length;i++) {
-		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false, class:"cards"});
+		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", onclick:"zoomInCards()", draggable:false, class:"cards"});
 		if(rotationTableCards[i] == undefined) {
 			rotationTableCards.push(Math.random()*25-10);
 		}
@@ -239,19 +257,9 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%4==0) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
-		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter: "changeIcon()", onmouseleave:"changeIcon()"});
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.ico");
+		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
 		$("#player_1").append(giveCardsIcon);
-	}
-}
-
-window.document.changeIcon = function() {
-	var icon = $("img#giveCards");
-	if(icon.attr("src") == "../Resources/Icons/giveCards.png") {
-		icon.attr("src", "../Resources/Icons/giveCardsHover.png");
-	}
-	else {
-		icon.attr("src", "../Resources/Icons/giveCards.png");		
 	}
 }
 

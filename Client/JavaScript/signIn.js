@@ -19,7 +19,6 @@ var main = function(){
 			complete: function(xhr) {
 				console.log(xhr.responseText);
 				if(xhr.responseText === "Success") {
-					//document.cookie="username=rex";
 					window.location.pathname = "/HTML/menu.html";
 				}
 				else{
