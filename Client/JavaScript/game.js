@@ -179,12 +179,15 @@ function updateTurnIcon() {
 function endGame(response) {
 	clearInterval(pollInterval);
 	var endGameMessage = $("<div>").attr("id","endGameMessage");
-	var text = $("<p>").text(response.substring(9));
+	var text = $("<p>").text(response.result);
 	var button = $("<div>").text("Close window");
 	button.attr("onclick", "window.close()");
 	endGameMessage.append(text);
 	endGameMessage.append(button);
 	$("#blackScreen").append(endGameMessage);
+	game.team1P = response.team1P;
+	game.team2P = response.team2P;
+	updateScore();
 	$("#blackScreen").fadeIn();
 }
 
@@ -197,7 +200,10 @@ function poll() {
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
-					if(xhr.responseText.substring(0, 8) == "End game") endGame(xhr.responseText);
+					if(xhr.responseJSON.result != undefined) {
+						endGame(xhr.responseJSON);
+						return;
+					}
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
@@ -235,6 +241,12 @@ window.document.zoomInCards = function() {
 	$("div#blackScreen").fadeIn();
 }
 
+window.document.changeIcon = function() {
+	var img = $("#giveCards");
+	if(img.attr("src") == "../Resources/Icons/giveCards.png") img.attr("src", "../Resources/Icons/giveCardsHover.png");
+	else img.attr("src", "../Resources/Icons/giveCards.png");
+}
+
 function updateTableCards() {
 	$("#table").empty();
 
@@ -257,8 +269,8 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%4==0) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.ico");
-		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()"});
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
+		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);
 	}
 }

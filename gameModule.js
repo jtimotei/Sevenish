@@ -103,9 +103,9 @@ function checkGameEnding(req, res, index) {
             g.onTable=[];
         }
 
-        if(g.team1P == g.team2P) res.send("End Game. Draw.");
-        else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) res.send("End game. You won.");
-        else res.send("End game. You lost.");
+        if(g.team1P == g.team2P) res.send({result:"Draw.", team1P:g.team1P, team2P:g.team2P});
+        else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) res.send({result:"You won!", team1P:g.team1P, team2P:g.team2P});
+        else res.send({result:"You lost!", team1P:g.team1P, team2P:g.team2P});
         return true;
     }
     else return false;
