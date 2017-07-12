@@ -71,7 +71,6 @@ window.adapt = function() {
 	adaptMessagePositions();
 }
 
-
 function displayMessages() {
 	var now = new Date().getTime();
 	for(var i=0;i<game.inbox.length; i++) {
@@ -180,15 +179,17 @@ function endGame(response) {
 	clearInterval(pollInterval);
 	var endGameMessage = $("<div>").attr("id","endGameMessage");
 	var text = $("<p>").text(response.result);
-	var button = $("<div>").text("Close window");
-	button.attr("onclick", "window.close()");
+	var button = $("<div>").text("Main menu");
+	button.attr("onclick", "window.location.href = '/HTML/menu.html'");
 	endGameMessage.append(text);
 	endGameMessage.append(button);
-	$("#blackScreen").append(endGameMessage);
+	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen2"});
+	blackScreen.append(endGameMessage);
 	game.team1P = response.team1P;
 	game.team2P = response.team2P;
 	updateScore();
-	$("#blackScreen").fadeIn();
+	$("body").append(blackScreen);
+	blackScreen.fadeIn();
 }
 
 function poll() {
@@ -237,8 +238,26 @@ function updateOwnCards() {
 	}
 }
 
+window.document.zoomOutCards = function() {
+	var blackScreen = $("div#blackScreen1");
+	blackScreen.fadeOut(200, function() {
+		blackScreen.remove();
+	});
+}
+
 window.document.zoomInCards = function() {
-	$("div#blackScreen").fadeIn();
+	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen1", onclick:"zoomOutCards()"});
+	var p = $("<p>");
+	for(var i=0;i<game.onTable.length;i++) {
+		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false});
+		p.append(img);
+		if(i%4==3 || i == game.onTable.length-1){
+			blackScreen.append(p);
+			p = $("<p>");
+		}	
+	}
+	$("body").append(blackScreen);
+	blackScreen.fadeIn(300);
 }
 
 window.document.changeIcon = function() {
@@ -253,6 +272,8 @@ function updateTableCards() {
 	updateScore();
 	updateTurnIcon();
 	
+	window.document.zoomOutCards();
+
 	if(game.onTable.length == 0) {
 		rotationTableCards = [];
 		return;
@@ -346,7 +367,8 @@ window.document.removeInput = function() {
 }
 
 $("body").on("keypress", function(event) {
-	if(event.keyCode == 13) {
+	var blackScreen = $("div.blackScreen");
+	if(event.keyCode == 13 && blackScreen.parent().length==0) {
 		var input = $("input#chat");
 		var inputVal = input.val();
 		if(input.css("display") == "none"){
