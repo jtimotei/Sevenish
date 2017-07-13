@@ -7,7 +7,7 @@ const http = require("http"),
     credentials = require("./credentials.js"),
     mysql = require("mysql"),
     verify = require("./verifyInput"),
-    gameModule = require("./gameModule.js");
+    queueModule = require("./queueModule.js");
     
 
 
@@ -109,4 +109,4 @@ app.get("/HTML/logOut", function(req, res){
     
 });
 
-app.use(gameModule.router);
+app.use(queueModule.router);

@@ -6,13 +6,13 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 "10_of_clubs","10_of_diamonds","10_of_hearts","10_of_spades","jack_of_clubs2","jack_of_diamonds2","jack_of_hearts2","jack_of_spades2","queen_of_clubs2","queen_of_diamonds","queen_of_hearts2",
 "queen_of_spades2","king_of_clubs2","king_of_diamonds2","king_of_hearts2","king_of_spades2","ace_of_clubs","ace_of_diamonds","ace_of_hearts","ace_of_spades"];
 
-var chatMessages = [];
 
-router.post('/HTML/init', function (req, res) {
+
+router.post('/HTML/init1', function (req, res) {
    if(req.body.gameId != undefined && req.body.gameId<games.length) {
        var g = games[req.body.gameId];
        var index = -1;
-       for(var i=0;i<4;i++){
+       for(var i=0;i<g.players.length;i++){
            if(g.players[i].username == req.session.username) {
                index = i;
                break;
@@ -54,7 +54,7 @@ router.post("/HTML/chat", function(req, res){
 
 });
 
-router.post('/HTML/putCardOnTable', function(req, res) {
+router.post('/HTML/putCardOnTable1', function(req, res) {
     var g = games[req.body.gameId];
     if(req.session.username == g.players[g.turn].username) {
         index = g.turn;
@@ -111,7 +111,7 @@ function checkGameEnding(req, res, index) {
     else return false;
 }
 
-router.post('/HTML/getGameState', function(req, res) {
+router.post('/HTML/getGameState1', function(req, res) {
     if(req.body.gameId == undefined || games.length <= req.body.gameId) {
         res.send("Game not found");
         return;
