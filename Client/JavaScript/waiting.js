@@ -11,7 +11,7 @@ var id = new Date().getTime();
 $.ajax({
 		type: "POST",
 		url: "/HTML/playQueue",
-		data: {date:id, lastSent:id},
+		data: {date:id, lastSent:id, gameMode:window.location.search.substring(4)},
 		dataType: 'json',
 		complete: function() {
 			poll();
@@ -24,7 +24,7 @@ function poll() {
 		$.ajax({
 			type: "POST",
 			url: "/HTML/search",
-			data: {date:id, lastSent:currentTime.getTime()},
+			data: {date:id, lastSent:currentTime.getTime(), gameMode:window.location.search.substring(4)},
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseJSON.message == "Game found") {
