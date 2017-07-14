@@ -34,8 +34,7 @@ function main() {
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
-			if(xhr.responseText == "Access denied") window.location.pathname = "/HTML/denied.html";
-			else if(xhr.responseText == "Game not found") window.location.pathname = "/HTML/not_found.html";
+			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
 				updateOtherPlayers();
@@ -221,6 +220,9 @@ function poll() {
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
 					if(game.inbox.length !=0) displayMessages();
+				}
+				else {
+					window.location.pathname = "/HTML/not_found.html";
 				}
 			}
 		})

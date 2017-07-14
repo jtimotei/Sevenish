@@ -66,7 +66,7 @@ app.post("/HTML/signIn", function(req, res, next){
 })
 
 app.post("/HTML/checkUsername", function(req, res) {
-    connection.query("SELECT username FROM users;", function(err, rows, fields) {
+    connection.query("SELECT username FROM Users;", function(err, rows, fields) {
         console.log(req.body);
         for(var i=0;i<rows.length;i++){
             if(rows[i].username == req.body.username){
@@ -90,7 +90,7 @@ app.post("/HTML/checkUsername", function(req, res) {
             return;
         }
 
-        connection.query('INSERT INTO users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname}, function(error) {
+        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname}, function(error) {
             if (error) {
                 console.log(error.message);
             } else {

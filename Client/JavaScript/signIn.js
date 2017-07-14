@@ -1,4 +1,5 @@
 var main = function(){
+
 	$("div#sign").on("click", submit);
 
 	$("input").on("keypress", function(event) {

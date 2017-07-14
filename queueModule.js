@@ -3,8 +3,6 @@ const gameModule = require("./gameModule.js"),
 
 var router = new express.Router();
 
-//var gameModes[req.body.gameMode].playQueue = [{username:"Timo", date:"long ago", icon:"ninja", inbox:[]}, {username:"test1",date:"long ago", icon:"teacher", inbox:[]},{username:"test2",date:"long ago", icon:"professor", inbox:[]},{username:"test3",date:"long ago", icon:"nurse", inbox:[]}];
-
 var gameModes = [
     { playQueue:[], nrPlayers:2 },
     { playQueue:[], nrPlayers:4 }
@@ -16,7 +14,7 @@ var gameNr = 0;
 
 function checkGameMode(req, res){
     if(req.body.gameMode != 0 && req.body.gameMode != 1) {
-        res.send("Unsupported game mode.");
+        res.send({message:"Unsupported game mode."});
         return true;
     }
     return false;
@@ -26,7 +24,7 @@ router.post("/HTML/playQueue", function(req, res, next) {
     if(checkGameMode(req, res)) return;
 
     gameModes[req.body.gameMode].playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
-    res.send("Success");
+    res.send({message:"Success"});
 });
 
 router.post("/HTML/search", function(req, res) {
