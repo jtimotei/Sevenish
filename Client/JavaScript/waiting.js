@@ -11,7 +11,7 @@ var id = new Date().getTime();
 $.ajax({
 		type: "POST",
 		url: "/HTML/playQueue",
-		data: {date:id, lastSent:id},
+		data: {date:id, lastSent:id, gameMode:window.location.search.substring(4)},
 		dataType: 'json',
 		complete: function() {
 			poll();
@@ -24,11 +24,12 @@ function poll() {
 		$.ajax({
 			type: "POST",
 			url: "/HTML/search",
-			data: {date:id, lastSent:currentTime.getTime()},
+			data: {date:id, lastSent:currentTime.getTime(), gameMode:window.location.search.substring(4)},
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseJSON.message == "Game found") {
-					window.location.href= "/HTML/game.html?g="+xhr.responseJSON.id;
+					if(window.location.search.substring(4) == "0") window.location.href= "/HTML/game1v1.html?g="+xhr.responseJSON.id;
+					else window.location.href= "/HTML/game2v2.html?g="+xhr.responseJSON.id;
 				}
 			}
 		});

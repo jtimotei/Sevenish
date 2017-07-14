@@ -51,18 +51,20 @@ function main() {
 
 window.adaptMessagePositions = function() {
 	for(var player=2; player<=4; player++) {
-		if(messageDisplayed[player-2]) {
-			var playerDiv = document.querySelector("#player_"+player+" div.userDivs").getBoundingClientRect();		
-			var textbox = $("#textbox_"+(player));
-			var circle1 = $("#circle1_"+(player));
-			var circle2 = $("#circle2_"+(player));
+		if(game.players.length != 2 || player == 3) { 
+			if(messageDisplayed[player-2]) {
+				var playerDiv = document.querySelector("#player_"+player+" div.userDivs").getBoundingClientRect();		
+				var textbox = $("#textbox_"+(player));
+				var circle1 = $("#circle1_"+(player));
+				var circle2 = $("#circle2_"+(player));
 
-			textbox.css({"top":playerDiv.top + messagePositions[player-2].message.top, 
-				"left":playerDiv.left + messagePositions[player-2].message.left});
-			circle1.css({"top":playerDiv.top + messagePositions[player-2].circle1.top, 
-				"left":playerDiv.left + messagePositions[player-2].circle1.left});
-			circle2.css({"top":playerDiv.top + messagePositions[player-2].circle2.top, 
-				"left":playerDiv.left + messagePositions[player-2].circle2.left});
+				textbox.css({"top":playerDiv.top + messagePositions[player-2].message.top, 
+					"left":playerDiv.left + messagePositions[player-2].message.left});
+				circle1.css({"top":playerDiv.top + messagePositions[player-2].circle1.top, 
+					"left":playerDiv.left + messagePositions[player-2].circle1.left});
+				circle2.css({"top":playerDiv.top + messagePositions[player-2].circle2.top, 
+					"left":playerDiv.left + messagePositions[player-2].circle2.left});
+			}
 		}
 	}
 }
@@ -84,7 +86,7 @@ function displayMessages() {
 
 // the function that prints the messages send by the players
 function printMessage(text, playerIndex) {
-	var player = (4+(playerIndex-game.you))%4-1;
+	var player = game.players.length == 2? 1:(4+(playerIndex-game.you))%4-1;
 	var textbox;
 	var circle1;
 	var circle2; 
@@ -162,16 +164,24 @@ function updateOtherPlayers() {
 	$("#ownInfo").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
 	$("#ownInfo").append("<p>"+game.players[i].username+"</p>");
 
-	for(var j=2; j<=4; j++) {
-		i=(i+1)%4;
-		$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
-		$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
+	if(game.players.length == 2) {
+		var opponent = game.you == 0? 1:0;
+		$("#player_3 div.userDivs").append("<img src='../Resources/Icons/"+game.players[opponent].icon+".png' class='icons'/>");
+		$("#player_3 div.userDivs").append("<p>"+game.players[opponent].username+"</p>");
+	}
+	else {
+		for(var j=2; j<=4; j++) {
+			i=(i+1)%4;
+			$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
+			$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
+		}
 	}
 }
 
 function updateTurnIcon() {
 	$("img#turnIcon").remove();
 	if(game.turn == game.you) $("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+	else if(game.players.length == 2) $("#player_3 div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
@@ -251,7 +261,7 @@ window.document.zoomInCards = function() {
 	for(var i=0;i<game.onTable.length;i++) {
 		var img = $("<img>").attr({src:"../Resources/Cards/"+game.onTable[i]+".png", draggable:false});
 		p.append(img);
-		if(i%4==3 || i == game.onTable.length-1){
+		if(i%game.players.length==(game.players.length-1) || i == game.onTable.length-1){
 			blackScreen.append(p);
 			p = $("<p>");
 		}	
@@ -289,7 +299,7 @@ function updateTableCards() {
 	}
 	
 
-	if(game.turn == game.you && game.onTable.length%4==0) {
+	if(game.turn == game.you && game.onTable.length%game.players.length==0) {
 		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);

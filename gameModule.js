@@ -2,17 +2,18 @@ var express =require("express");
 var router = new express.Router();
 
 var games;
+
 const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of_clubs","8_of_diamonds","8_of_hearts","8_of_spades","9_of_clubs","9_of_diamonds","9_of_hearts","9_of_spades",
 "10_of_clubs","10_of_diamonds","10_of_hearts","10_of_spades","jack_of_clubs2","jack_of_diamonds2","jack_of_hearts2","jack_of_spades2","queen_of_clubs2","queen_of_diamonds","queen_of_hearts2",
 "queen_of_spades2","king_of_clubs2","king_of_diamonds2","king_of_hearts2","king_of_spades2","ace_of_clubs","ace_of_diamonds","ace_of_hearts","ace_of_spades"];
 
-var chatMessages = [];
+
 
 router.post('/HTML/init', function (req, res) {
    if(req.body.gameId != undefined && req.body.gameId<games.length) {
        var g = games[req.body.gameId];
        var index = -1;
-       for(var i=0;i<4;i++){
+       for(var i=0;i<g.players.length;i++){
            if(g.players[i].username == req.session.username) {
                index = i;
                break;
@@ -41,9 +42,9 @@ router.post("/HTML/chat", function(req, res){
     }
 
     var g = games[req.body.gameId];
-     for(var j=0;j<4;j++) {
+     for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
-            for(var i=0; i<4; i++) {
+            for(var i=0; i<g.players.length; i++) {
                 if(i!=j) {
                     g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
                 }
@@ -58,7 +59,7 @@ router.post('/HTML/putCardOnTable', function(req, res) {
     var g = games[req.body.gameId];
     if(req.session.username == g.players[g.turn].username) {
         index = g.turn;
-        if(g.onTable.length > 0 && g.onTable.length%4==0 && req.body.card == -1) {
+        if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
             g.turn = g.holder;
             addPoints(req.body.gameId);
             distributeCards(req.body.gameId);
@@ -67,14 +68,13 @@ router.post('/HTML/putCardOnTable', function(req, res) {
         } 
         else if(g.cards[index][req.body.card] != undefined) {
             if(g.onTable.length > 0 && g.cards[index][req.body.card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][req.body.card].substring(0,1) == '7') g.holder=index;
-            else if(g.onTable.length > 0 && g.onTable.length%4==0){
+            else if(g.onTable.length > 0 && g.onTable.length%g.players.length==0){
                 res.send("Invalid action");
                 return;
             }
             g.onTable.push(g.cards[index][req.body.card]);
             g.cards[index].splice(req.body.card,1);
-            if(g.turn == 3) g.turn = 0;
-            else g.turn++;
+            g.turn = (g.turn+1)%g.players.length;
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
         }
     }
@@ -97,7 +97,12 @@ function addPoints(index) {
 
 function checkGameEnding(req, res, index) {
     var g = games[req.body.gameId];
-    if(g.nrDistributedCards == 32 && g.cards[0].length == 0 && g.cards[1].length == 0 && g.cards[2].length == 0 && g.cards[3].length == 0) {
+
+    if(g.nrDistributedCards == 32) {
+        for(var k=0; k<g.players.length;k++) 
+            if(g.cards[k].length != 0) 
+                return false;
+
         if(g.onTable.length != 0) {
             addPoints(req.body.gameId);
             g.onTable=[];
@@ -118,7 +123,7 @@ router.post('/HTML/getGameState', function(req, res) {
     }
 
     var g = games[req.body.gameId];
-    for(var j=0;j<4;j++) {
+    for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
             if(checkGameEnding(req, res, j)) return;
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox});
@@ -146,11 +151,10 @@ function distributeCards(i) {
     var j=0;
     while(j<4 && nr != 32) {
         if(games[i].cards[0][j]==undefined) {
-            games[i].cards[0][j]=games[i].deck[0+nr];
-            games[i].cards[1][j]=games[i].deck[1+nr];
-            games[i].cards[2][j]=games[i].deck[2+nr];
-            games[i].cards[3][j]=games[i].deck[3+nr];    
-            nr+=4;
+            for(var k=0;k<games[i].players.length;k++) {
+                games[i].cards[k][j]=games[i].deck[k+nr];
+            }  
+            nr+=games[i].players.length;
         }
         j++;
     }

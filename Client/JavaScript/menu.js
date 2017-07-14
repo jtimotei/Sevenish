@@ -1,6 +1,7 @@
 function main() {
 	$("button").on("click", function() {
-		window.open("/HTML/waiting.html");
+		gameMode = this.getAttribute("data-gamemode")-0;
+		window.open("/HTML/waiting.html?gm="+gameMode);
 	})
 }
 
