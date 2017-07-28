@@ -1,12 +1,12 @@
 function adaptContent() {
 	var bar = document.querySelector("div.bar:nth-of-type(1)").getBoundingClientRect();
 	var t = bar.height;
-	var h = window.innerHeight - bar.height;
+	var h = window.innerHeight - bar.height + 1;
 	$("div#content").css({top:t, height:h});	
 }
 
 function main() {
-	$("button").on("click", function() {
+	$("div#gameModes div").on("click", function() {
 		gameMode = this.getAttribute("data-gamemode")-0;
 		window.open("/HTML/waiting.html?gm="+gameMode);
 	})
