@@ -4,6 +4,8 @@
 	<title>Sevenish</title>
 	<script type="text/javascript" src="../JavaScript/jquery.js"></script>
 	<link rel="icon" href="../Resources/Icons/favicon.ico" type="image/x-icon" />
+	<link href="https://fonts.googleapis.com/css?family=Permanent+Marker|Acme|Caveat+Brush|Anton|Righteous" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../CSS/menu.css">
 	<script>
 		var check = function() {
 			var ajax = new XMLHttpRequest();
@@ -16,9 +18,17 @@
 		check();
 	</script>
 </head>
-<body>
-<button data-gamemode=0>1v1 mode</button>
-<button data-gamemode=1>2v2 mode</button>
+<body onresize="adaptContent()">
+<div class="bar"><p>Profile</p></div><div class="bar"><p>Play</p></div><div class="bar"><p>Stats</p></div><div class="bar" ><p>About</p></div>
+<div id="content">
+	<div class="screen">
+		<button data-gamemode=0>1v1 mode</button>
+		<button data-gamemode=1>2v2 mode</button>
+	</div>
+	<div class="screen"></div>
+	<div class="screen"></div>
+	<div class="screen"></div>
+</div>
 <script type="text/javascript" src="../JavaScript/menu.js"></script>
 </body>
 </html>
