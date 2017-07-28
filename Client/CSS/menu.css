@@ -22,6 +22,7 @@ div.bar{
 	cursor: pointer;
 	background-color: black;
 	color:white;
+	z-index:3;
 }
 
 div.bar:nth-of-type(2) {
@@ -50,17 +51,30 @@ div.bar p{
 }
 
 div#content {
+	z-index: 1;
 	position:absolute;
-	top:9vmin;
 	width: 100%;
-	background-color: blue;
 	overflow:hidden;
+	text-align: left;
+}
+
+div#container {
+	position: relative;
+	height: 200%;
+	width: 200%;
+	transition-duration: 0.4s;
+	transition-timing-function: ease-in;
+	transition-delay: 0.1s;
 }
 
 div.screen {
-	height: 100%;
-	width: 100%;
-	position: absolute;
+	position:relative;
+	height: 50%;
+	width: 50%;
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+	padding:3vmin;
 }
 
 div.screen:nth-of-type(1) {

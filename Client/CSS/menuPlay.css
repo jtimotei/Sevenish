@@ -1,0 +1,19 @@
+
+div#gameModes {
+	position:absolute;
+	top:40%;
+	left:50%;
+	transform:translate(-50%, -50%);
+	display:inline-flex;
+	background-color: blue;
+	height: 50%;
+	width: 60%;
+}
+
+div#gameModes div{
+	display: inline-block;
+	cursor: pointer;
+	max-height: 100%;
+	max-width: 100%;
+	margin:4vmin;
+}
