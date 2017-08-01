@@ -1,0 +1,87 @@
+
+div#info {
+	position:relative;
+	top:50%;
+	left:50%;
+	transform:translate(-50%, -50%);
+	width: 90%;
+	text-align: center;
+	height: 80%;
+}
+
+div#iconDiv {
+	float:left;
+	height: 40%;
+	width: 25%;
+	box-sizing: border-box;
+}
+
+div#details {
+	float:right;
+	height: 100%;
+	width: 75%;
+	text-align: left;
+	overflow:hidden;
+	box-sizing: border-box;
+	padding-left: 5vmin;
+	padding-top: 4vmin;
+	box-sizing: border-box;
+	border-left: 0.5vmin dashed grey;
+}
+
+div#details p#greeting{
+	color:black;
+	font-family: "Righteous";
+	font-size: 10vmin;
+}
+
+div#details p{
+	color:black;
+	font-family: "Righteous";
+	font-size: 2vmin;
+}
+
+div#details p.winrates{
+	font-size: 3vmin;
+}
+
+div#iconDiv img {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+	top:10px;
+}
+
+div#options {
+	float:left;
+	height: 60%;
+	width: 25%;
+	box-sizing: border-box;
+	font-family: "Righteous";
+	padding-top:3vmin;
+	color:grey;
+	font-size: 4vmin;
+	text-align: center;
+}
+
+div#options p {
+	margin-top:2vmin;
+	cursor:pointer;
+}
+
+div#options p:hover {
+	color:black;
+}
+
+.selectedPMode::before {
+	content:"> ";
+}
+
+.selectedPMode::after {
+	content:" <";
+}
+
+div#contentProfile {
+	height:100%;
+	width:100%;
+}

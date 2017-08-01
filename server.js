@@ -7,7 +7,8 @@ const http = require("http"),
     credentials = require("./credentials.js"),
     mysql = require("mysql"),
     verify = require("./verifyInput"),
-    queueModule = require("./queueModule.js");
+    queueModule = require("./queueModule.js"),
+    profileModule = require("./profileModule.js");
     
 
 
@@ -59,6 +60,7 @@ app.post("/HTML/signIn", function(req, res, next){
         } else {
             req.session.username = rows[0].username;
             req.session.name = rows[0].name;
+            req.session.surname = rows[0].surname;
             req.session.icon = rows[0].icon;
             res.send("Success");
         }
@@ -110,3 +112,4 @@ app.get("/HTML/logOut", function(req, res){
 });
 
 app.use(queueModule.router);
+app.use(profileModule.router);

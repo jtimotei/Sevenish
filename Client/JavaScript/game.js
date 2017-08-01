@@ -73,13 +73,12 @@ window.adapt = function() {
 }
 
 function displayMessages() {
-	var now = new Date().getTime();
-	for(var i=0;i<game.inbox.length; i++) {
+	var i=0;
+	if(game.inbox.length>=3) i=game.inbox.length-3;
+	for(;i<game.inbox.length; i++) {
 		var date = new Date(game.inbox[i].date);
-		if(now - date.getTime() < 60000) {
-			var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
- 			printMessage(message, game.inbox[i].sender);
-		}
+		var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
+ 		printMessage(message, game.inbox[i].sender);
 	}
 }
 
@@ -196,6 +195,7 @@ function endGame(response) {
 	blackScreen.append(endGameMessage);
 	game.team1P = response.team1P;
 	game.team2P = response.team2P;
+	updateTableCards();
 	updateScore();
 	$("body").append(blackScreen);
 	blackScreen.fadeIn();
@@ -226,7 +226,7 @@ function poll() {
 				}
 			}
 		})
-	}, 2000);
+	}, 1500);
 }
 
 function updateOwnCards() {
