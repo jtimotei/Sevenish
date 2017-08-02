@@ -92,7 +92,7 @@ app.post("/HTML/checkUsername", function(req, res) {
             return;
         }
 
-        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher"}, function(error) {
+        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher", winrate1v1:0, winrate2v2:0}, function(error) {
             if (error) {
                 console.log(error.message);
             } else {
