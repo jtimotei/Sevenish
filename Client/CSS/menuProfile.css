@@ -87,6 +87,7 @@ div#contentProfile {
 	overflow-y:scroll;
 	height:100%;
 	width:100%;
+	padding-right:1vmin;
 }
 
 .style-1::-webkit-scrollbar-track{
@@ -108,4 +109,21 @@ div#contentProfile {
 
 .style-1::-webkit-scrollbar-thumb:active{
 	background-color: darkgrey;
+}
+
+.rankings {
+	width: 100%;
+	margin-bottom: 4vmin;
+	border-collapse: collapse;
+	text-align: center;
+	font-size:3vmin;
+}
+
+.rankings tr:nth-of-type(1) {
+	background-color: black;
+	color:white;
+}
+
+.rankings tr {
+	background-color: grey;
 }

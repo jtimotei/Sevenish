@@ -4,9 +4,9 @@ div#gameModes {
 	top:50%;
 	left:50%;
 	transform:translate(-50%, -50%);
-	width: 70%;
+	width: 50%;
 	text-align: center;
-	height: 70%;
+	height: 50%;
 	overflow:hidden;
 }
 
@@ -17,7 +17,7 @@ div#gameModes div{
 	cursor: pointer;
 	width: 40%;
 	box-sizing: border-box;
-	padding:2vmin;
+	padding:3vmin;
 	height: 100%;
 }
 

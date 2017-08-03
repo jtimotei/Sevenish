@@ -4,7 +4,7 @@ var game;
 // the number of cards in hand -> useful for determining the layout of the cards
 var nrOfCardsInHand;
 
-// how the own cards will be displayed
+// how the 'own cards' will be displayed
 const cardPositions = 
 	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
 	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
@@ -360,7 +360,7 @@ window.document.emptyTable = function() {
 var inputFocused;
 
 window.document.removeInput = function() {
-	var input = $("input#chat");
+	var input = $("div#chat input");
 	var inputVal = input.val();
 	var remove = true;
 	for(var i=0; i<inputVal.length;i++) {
@@ -372,20 +372,47 @@ window.document.removeInput = function() {
 
 	if(remove) {
 		input.fadeOut(100, function() {input.val("");});
+		$("div#chatButton img").attr("src","../Resources/Other/chat.png");
 	}
 	else {
 		inputFocused = false;
 	}
 }
 
-$("body").on("keypress", function(event) {
+$("div#chatButton").on("click", function() {
 	var blackScreen = $("div.blackScreen");
-	if(event.keyCode == 13 && blackScreen.parent().length==0) {
-		var input = $("input#chat");
+	if(blackScreen.parent().length==0) {
+		var input = $("div#chat input");
 		var inputVal = input.val();
 		if(input.css("display") == "none"){
 			input.fadeIn(100);
 			input.focus();
+			inputFocused = true;
+			$("div#chatButton img").attr("src","../Resources/Other/send.png");
+		}
+		else {
+			input.fadeOut(100, function() {input.val("");});
+			inputFocused = false;
+			$.ajax({
+				type: "POST",
+				url: "/HTML/chat",
+				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
+				dataType: 'json'
+			});
+			$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+		}
+	}
+})
+
+$("body").on("keypress", function(event) {
+	var blackScreen = $("div.blackScreen");
+	if(event.keyCode==13 && blackScreen.parent().length==0) {
+		var input = $("div#chat input");
+		var inputVal = input.val();
+		if(input.css("display") == "none"){
+			input.fadeIn(100);
+			input.focus();
+			$("div#chatButton img").attr("src","../Resources/Other/send.png");
 			inputFocused = true;
 		}
 		else if(!inputFocused) {

@@ -2,6 +2,7 @@ const gameModule = require("./gameModule.js"),
     express =require("express");
 
 var router = new express.Router();
+var connection;
 
 var gameModes = [
     { playQueue:[], nrPlayers:2 },
@@ -71,7 +72,8 @@ function match(gameMode) {
             onTable:[],
             holder:0,
             team1P:0,
-            team2P:0
+            team2P:0,
+            end:false
         };
         var playersFound = 0;
         var indexes = []; 
@@ -122,6 +124,11 @@ setInterval(function() {
     }
 }, 1000);
 
+function initializeConnection(c) {
+    connection = c;
+    gameModule.initialize(games, connection);
+}
+
 router.use(gameModule.router);
 module.exports.router = router;
-gameModule.initialize(games);
+module.exports.initializeConnection = initializeConnection;

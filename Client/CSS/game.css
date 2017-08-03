@@ -253,30 +253,51 @@ div.textbox p{
 	margin:10px 0px 10px 0px;
 }
 
-input#chat {
+div#chat {
+	z-index:4;	
+	position:fixed;
+	box-sizing: border-box;
+    top:10px;
+    right:10px;
+    height: 46px;
+    width: 400px;
+}
+
+div#chat input{
 	display:none;
-	z-index:4;
 	font-family: Arial;
 	background-color:rgba(0,0,0,0.7);
 	color:rgba(256,256,256, 0.7);
 	font-size: 14px;
+	float:left;
+	width:354px; 
 	font-weight: bold;
-    width: 30%;
+	height: 100%;
     padding: 5px 10px;
-    margin: 8px;
     border: 3px solid rgba(0,0,0,0);
     box-sizing: border-box;
-    position:fixed;
-    bottom:10px;
-    right:10px;
 }
 
-input#chat:hover{
+div#chatButton {
+	width: 46px;
+	height: 100%;
+	float: right;
+	box-sizing: border-box;
+	padding:0.2vmin;
+	background-color: lightgrey;
+}
+
+div#chatButton img{
+	height: 100%;
+	width: 100%;
+}
+
+div#chat input:hover{
 	color:white;
 	background-color: black;
 }  
 
-input#chat:focus{
+div#chat input:focus{
 	outline:none;
 	color:white;
 	background-color: black;

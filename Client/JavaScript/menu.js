@@ -1,5 +1,6 @@
 var acc;
 var profileMode=0;
+var table1, table2;
 function adaptContent() {
 	var bar = document.querySelector("div.bar:nth-of-type(1)").getBoundingClientRect();
 	var t = bar.height;
@@ -9,7 +10,7 @@ function adaptContent() {
 }
 
 function rankToString(number) {
-	if(number==undefined || !Number.isInteger(number)) return "last";
+	if(!Number.isInteger(number)) return "last";
 	else if(number==1) return "1st";
 	else if(number==2) return "2nd";
 	else if(number==3) return "3rd";
@@ -17,15 +18,17 @@ function rankToString(number) {
 }
 
 function updateProfile1() {
+	if(acc.message == "Error retrieving data.") {
+		$("#contentProfile").text("Error retrieving data.");
+		return; 
+	}
+	$("#iconDiv img").attr("src","../Resources/Icons/"+acc.icon+".png");
 	var greeting = $("<p id='greeting'>").text("Hi "+acc.name+",");
-	var points1v1, points2v2;
-	if(acc.points1v1 == undefined) points1v1 = 0;
-	if(acc.points2v2 == undefined) points2v2 = 0;
 	var rank1v1 = rankToString(acc.rank1v1);
 	var rank2v2 = rankToString(acc.rank2v2);
 
-	var ranking = $("<p>").text("you rank "+rank1v1+" at 1v1 with a number of points of "+points1v1+ 
-		" and you rank "+rank2v2+" at 2v2 with a number of points of "+points2v2+'.');
+	var ranking = $("<p>").text("you rank "+rank1v1+" at 1v1 with a number of points of "+acc.points1v1+ 
+		" and you rank "+rank2v2+" at 2v2 with a number of points of "+acc.points2v2+'.');
 
 	var winRate1v1 = $("<p>").html("<br><p class='winrates'>Your win rate at 1v1 is:</p><div class='w3-grey'><div class='w3-container w3-black w3-center' style='width:"
 		+acc.winRate1v1+"%'>"+acc.winRate1v1+"%</div></div><br>");
@@ -38,10 +41,35 @@ function updateProfile1() {
 	$("#contentProfile").append(winRate2v2);
 }
 
-function updateProfile2() {
-	var table = $("<p>").text("Data not yet available.");
+function createTableRankings(table) {
 
-	$("#contentProfile").append(table);
+	if(table1.message == "Error retrieving data.") {
+		return $("<p>").text("Error retrieving data.");
+	}
+
+	var t = $("<table class='rankings'>");
+	var row=$("<tr>");
+	row.append($("<td>").text("Rank"));
+	row.append($("<td>").text("Username"));
+	row.append($("<td>").text("Points"));
+	t.append(row);
+
+	for(var i=0; i<table.list.length; i++) {
+		var row=$("<tr>");
+		row.append($("<td>").text(i+1));
+		row.append($("<td>").text(table.list[i].username));
+		row.append($("<td>").text(table.list[i].points));
+		t.append(row);
+	}
+
+	return t;
+}
+
+function updateProfile2() {
+	$("#contentProfile").append($("<p>").text("Rankings at 1v1"));
+	$("#contentProfile").append(createTableRankings(table1));
+	$("#contentProfile").append($("<p>").text("Rankings at 2v2"));
+	$("#contentProfile").append(createTableRankings(table2));
 }
 
 function main() {
@@ -51,10 +79,24 @@ function main() {
 		dataType: 'json',
 		complete: function(xhr) {
 			acc = xhr.responseJSON;
-			$("#iconDiv img").attr("src","../Resources/Icons/"+acc.icon+".png");
-			updateProfile1();
+			updateProfile1();			
 		}
 	});
+
+	$.ajax({
+		type: "GET", url: "/top1v1", dataType: 'json',
+		complete: function(xhr) {
+			table1 = xhr.responseJSON;
+		}
+	});
+
+	$.ajax({
+		type: "GET", url: "/top2v2", dataType: 'json',
+		complete: function(xhr) {
+			table2 = xhr.responseJSON;
+		}
+	});
+
 
 	$("div#gameModes div").on("click", function() {
 		gameMode = this.getAttribute("data-gamemode")-0;

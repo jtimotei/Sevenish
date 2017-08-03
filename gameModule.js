@@ -3,6 +3,8 @@ var router = new express.Router();
 
 var games;
 
+var connection;
+
 const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of_clubs","8_of_diamonds","8_of_hearts","8_of_spades","9_of_clubs","9_of_diamonds","9_of_hearts","9_of_spades",
 "10_of_clubs","10_of_diamonds","10_of_hearts","10_of_spades","jack_of_clubs2","jack_of_diamonds2","jack_of_hearts2","jack_of_spades2","queen_of_clubs2","queen_of_diamonds","queen_of_hearts2",
 "queen_of_spades2","king_of_clubs2","king_of_diamonds2","king_of_hearts2","king_of_spades2","ace_of_clubs","ace_of_diamonds","ace_of_hearts","ace_of_spades"];
@@ -85,6 +87,25 @@ router.post('/HTML/putCardOnTable', function(req, res) {
     }
 })
 
+function updateDB(g) {
+    var gameMode;
+    if(g.players.length==4) gameMode = "2v2";
+    else gameMode = "1v1";
+
+    var queryWin = "UPDATE Stats SET games"+gameMode+" = games"+gameMode+" + 1, wins"+gameMode+" = wins"+gameMode+" + 1, points"+gameMode+" = points"+gameMode+" + 5 WHERE username=?;";
+    var queryLoss = "UPDATE Stats SET games"+gameMode+" = games"+gameMode+" + 1, points"+gameMode+" = points"+gameMode+" - 3 WHERE username=?;";
+    var queryDraw = "UPDATE Stats SET games"+gameMode+" = games"+gameMode+" + 1 WHERE username=?;";
+
+    var query;
+    for(var i=0;i<g.players.length; i++){
+        if(g.team1P == g.team2P) query=qeuryDraw;
+        else if((i%2 == 0 && g.team1P > g.team2P) || (i%2 == 1 && g.team1P < g.team2P)) query= queryWin;
+        else query=queryLoss;
+
+        connection.query(query,[g.players[i].username]);
+    }
+}
+
 function addPoints(index) {
     var g = games[index];
     var points =0;
@@ -105,9 +126,10 @@ function checkGameEnding(req, res, index) {
             if(g.cards[k].length != 0) 
                 return false;
 
-        if(g.onTable.length != 0) {
+        if(!g.end) {
+            g.end = true;
             addPoints(req.body.gameId);
-            g.onTable=[];
+            updateDB(g);            
         }
 
         if(g.team1P == g.team2P) res.send({result:"Draw.", team1P:g.team1P, team2P:g.team2P});
@@ -165,8 +187,9 @@ function initializeGame(i) {
     distributeCards(i);
 }
 
-function initialize(g) {
+function initialize(g, c) {
     games = g;
+    connection = c;
 }
 
 module.exports.router = router;

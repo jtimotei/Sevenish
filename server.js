@@ -69,37 +69,58 @@ app.post("/HTML/signIn", function(req, res, next){
 
 app.post("/HTML/checkUsername", function(req, res) {
     connection.query("SELECT username FROM Users;", function(err, rows, fields) {
-        console.log(req.body);
-        for(var i=0;i<rows.length;i++){
-            if(rows[i].username == req.body.username){
-                res.send("Username already taken.");
-                return;
-            }
-        }
+
         var request = req.body;
+
+        if(!verify.verifyUsername(request.username)){
+            res.send("Username contains unsupported symbols.");
+            return;
+        }
+        
+        if(request.password.length == 0){
+            res.send("Password is empty");
+            return;
+        }
+
         if(request.password !== request.retype){
             res.send("Passwords don't match");
             return;
         }
 
-        if(!verify.verifyUsername(request.username)){
-            res.send("Username does not contain any letters.");
-            return;
-        }
 
         if(!verify.verifyEmpty(request.name)){
             res.send("Name is empty.");
             return;
         }
 
-        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher", winrate1v1:0, winrate2v2:0}, function(error) {
+        for(var i=0;i<rows.length;i++){
+            if(rows[i].username == req.body.username){
+                res.send("Username already taken.");
+                return;
+            }
+        }
+
+
+        var err = false;
+        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher"}, function(error) {
             if (error) {
                 console.log(error.message);
+                err = true;
             } else {
                 console.log('success');    
             }
         });
 
+        connection.query('INSERT INTO Stats SET ?', {username: request.username, games1v1:0, games2v2:0, wins1v1:0, wins2v2:0, points1v1:0, points2v2:0}, function(error) {
+            if (error) {
+                console.log(error.message);
+                err = true;
+            } else {
+                console.log('success');    
+            }
+        });
+
+        if(err) res.send("An error occured.");
         res.send("Success");
     });
 });
@@ -113,3 +134,5 @@ app.get("/HTML/logOut", function(req, res){
 
 app.use(queueModule.router);
 app.use(profileModule.router);
+profileModule.initializeConnection(connection);
+queueModule.initializeConnection(connection);
