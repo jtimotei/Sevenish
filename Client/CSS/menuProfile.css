@@ -1,0 +1,124 @@
+
+div#info {
+	position:relative;
+	top:50%;
+	left:50%;
+	transform:translate(-50%, -50%);
+	width: 90%;
+	text-align: center;
+	height: 80%;
+}
+
+div#iconDiv {
+	float:left;
+	height: 40%;
+	width: 25%;
+	box-sizing: border-box;
+}
+
+div#details {
+	float:right;
+	height: 100%;
+	width: 75%;
+	text-align: left;
+	overflow:hidden;
+	box-sizing: border-box;
+	padding-left: 5vmin;
+	padding-top: 4vmin;
+	box-sizing: border-box;
+	border-left: 0.5vmin dashed grey;
+}
+
+div#details p#greeting{
+	color:black;
+	font-family: "Righteous";
+	font-size: 10vmin;
+}
+
+div#details p{
+	color:black;
+	font-family: "Righteous";
+	font-size: 2vmin;
+}
+
+div#details p.winrates{
+	font-size: 3vmin;
+}
+
+div#iconDiv img {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+	top:10px;
+}
+
+div#options {
+	float:left;
+	height: 60%;
+	width: 25%;
+	box-sizing: border-box;
+	font-family: "Righteous";
+	padding-top:3vmin;
+	color:grey;
+	font-size: 4vmin;
+	text-align: center;
+	overflow:hidden;
+}
+
+div#options p {
+	margin-top:2vmin;
+	cursor:pointer;
+}
+
+div#options p:hover {
+	color:black;
+}
+
+.selectedPMode::before {
+	content:"> ";
+}
+
+.selectedPMode::after {
+	content:" <";
+}
+
+div#contentProfile {
+	position: relative;
+	overflow-y:scroll;
+	height:100%;
+	width:100%;
+	padding-right: 1vmin;
+}
+
+
+
+.style-1::-webkit-scrollbar{
+	width: 1vmin;
+	background-color: rgba(0,0,0,0);
+}
+
+.style-1::-webkit-scrollbar-thumb{
+	border-radius: 1vmin;
+	background-color: grey;
+}
+
+.style-1::-webkit-scrollbar-thumb:active{
+	background-color: darkgrey;
+}
+
+.rankings {
+	width: 100%;
+	margin-bottom: 4vmin;
+	border-collapse: collapse;
+	text-align: center;
+	font-size:3vmin;
+}
+
+.rankings tr:nth-of-type(1) {
+	background-color: black;
+	color:white;
+}
+
+.rankings tr {
+	background-color: grey;
+}

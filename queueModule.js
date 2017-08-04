@@ -2,8 +2,7 @@ const gameModule = require("./gameModule.js"),
     express =require("express");
 
 var router = new express.Router();
-
-//var gameModes[req.body.gameMode].playQueue = [{username:"Timo", date:"long ago", icon:"ninja", inbox:[]}, {username:"test1",date:"long ago", icon:"teacher", inbox:[]},{username:"test2",date:"long ago", icon:"professor", inbox:[]},{username:"test3",date:"long ago", icon:"nurse", inbox:[]}];
+var connection;
 
 var gameModes = [
     { playQueue:[], nrPlayers:2 },
@@ -16,7 +15,7 @@ var gameNr = 0;
 
 function checkGameMode(req, res){
     if(req.body.gameMode != 0 && req.body.gameMode != 1) {
-        res.send("Unsupported game mode.");
+        res.send({message:"Unsupported game mode."});
         return true;
     }
     return false;
@@ -26,7 +25,7 @@ router.post("/HTML/playQueue", function(req, res, next) {
     if(checkGameMode(req, res)) return;
 
     gameModes[req.body.gameMode].playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
-    res.send("Success");
+    res.send({message:"Success"});
 });
 
 router.post("/HTML/search", function(req, res) {
@@ -73,7 +72,8 @@ function match(gameMode) {
             onTable:[],
             holder:0,
             team1P:0,
-            team2P:0
+            team2P:0,
+            end:false
         };
         var playersFound = 0;
         var indexes = []; 
@@ -103,6 +103,7 @@ function match(gameMode) {
         removeFromPlayQueue(invalidEntries, gameMode);
         if(playersFound == gm.nrPlayers) {
             games.push(game);
+            gameModule.initializeGame(game);
             gameNr++;
             removeFromPlayQueue(indexes, gameMode);
             match(gameMode);
@@ -124,6 +125,11 @@ setInterval(function() {
     }
 }, 1000);
 
+function initializeConnection(c) {
+    connection = c;
+    gameModule.initialize(games, connection);
+}
+
 router.use(gameModule.router);
 module.exports.router = router;
-gameModule.initialize(games);
+module.exports.initializeConnection = initializeConnection;

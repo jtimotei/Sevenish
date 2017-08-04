@@ -3,6 +3,13 @@
 <head>
 	<title>Sevenish</title>
 	<script type="text/javascript" src="../JavaScript/jquery.js"></script>
+	<link rel="icon" href="../Resources/Icons/favicon.ico" type="image/x-icon" />
+	<link href="https://fonts.googleapis.com/css?family=Permanent+Marker|Acme|Caveat+Brush|Anton|Righteous" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../CSS/menu.css">
+	<link rel="stylesheet" type="text/css" href="../CSS/menuPlay.css">
+	<link rel="stylesheet" type="text/css" href="../CSS/menuProfile.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
 	<script>
 		var check = function() {
 			var ajax = new XMLHttpRequest();
@@ -16,8 +23,9 @@
 	</script>
 </head>
 <body>
-<button data-gamemode=0>1v1 mode</button>
-<button data-gamemode=1>2v2 mode</button>
+<div id="navbar"><div class="bar"><p>Profile</p></div><div class="bar"><p>Play</p></div><div class="bar"><p>Settings</p></div><div class="bar" ><p>About</p></div></div>
+<div id="content">
+<div id="container"><div class="screen"><div id="info"><div id="iconDiv"><img src="" /></div><div id="details"><div id="contentProfile" class="style-1"></div></div><div id="options"><p class="selectedPMode"> Stats </p><p>Top 10</p></div></div></div><div class="screen"><div id="gameModes"><div data-gamemode=0><img src="../Resources/Other/1v1.png" /><p>1v1</p></div><div data-gamemode=1><img src="../Resources/Other/2v2.png" /><p>2v2</p></div></div></div><div class="screen"></div><div class="screen"><div id="info"></div></div></div></div>
 <script type="text/javascript" src="../JavaScript/menu.js"></script>
 </body>
 </html>

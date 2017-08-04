@@ -4,7 +4,7 @@ var game;
 // the number of cards in hand -> useful for determining the layout of the cards
 var nrOfCardsInHand;
 
-// how the own cards will be displayed
+// how the 'own cards' will be displayed
 const cardPositions = 
 	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
 	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
@@ -30,12 +30,11 @@ function main() {
 	var turn=0;
 	$.ajax({
 		type: "POST",
-		url: "/HTML/init",
+		url: "/HTML/getGameState",
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
-			if(xhr.responseText == "Access denied") window.location.pathname = "/HTML/denied.html";
-			else if(xhr.responseText == "Game not found") window.location.pathname = "/HTML/not_found.html";
+			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
 				updateOtherPlayers();
@@ -74,13 +73,12 @@ window.adapt = function() {
 }
 
 function displayMessages() {
-	var now = new Date().getTime();
-	for(var i=0;i<game.inbox.length; i++) {
+	var i=0;
+	if(game.inbox.length>=3) i=game.inbox.length-3;
+	for(;i<game.inbox.length; i++) {
 		var date = new Date(game.inbox[i].date);
-		if(now - date.getTime() < 60000) {
-			var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
- 			printMessage(message, game.inbox[i].sender);
-		}
+		var message = '[' + date.getHours()+ ':' + date.getMinutes() + ']	' + game.inbox[i].message;
+ 		printMessage(message, game.inbox[i].sender);
 	}
 }
 
@@ -185,19 +183,15 @@ function updateTurnIcon() {
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
-function endGame(response) {
-	clearInterval(pollInterval);
+function endGame() {
 	var endGameMessage = $("<div>").attr("id","endGameMessage");
-	var text = $("<p>").text(response.result);
+	var text = $("<p>").text(game.result);
 	var button = $("<div>").text("Main menu");
 	button.attr("onclick", "window.location.href = '/HTML/menu.html'");
 	endGameMessage.append(text);
 	endGameMessage.append(button);
 	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen2"});
 	blackScreen.append(endGameMessage);
-	game.team1P = response.team1P;
-	game.team2P = response.team2P;
-	updateScore();
 	$("body").append(blackScreen);
 	blackScreen.fadeIn();
 }
@@ -211,20 +205,27 @@ function poll() {
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
-					if(xhr.responseJSON.result != undefined) {
-						endGame(xhr.responseJSON);
-						return;
-					}
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
+
+					if(game.result != undefined) {
+						updateTableCards();
+						setTimeout(endGame, 2000);
+						clearInterval(pollInterval);
+						return;
+					}
+
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
 					if(game.inbox.length !=0) displayMessages();
 				}
+				else {
+					window.location.pathname = "/HTML/not_found.html";
+				}
 			}
 		})
-	}, 2000);
+	}, 1500);
 }
 
 function updateOwnCards() {
@@ -299,7 +300,7 @@ function updateTableCards() {
 	}
 	
 
-	if(game.turn == game.you && game.onTable.length%game.players.length==0) {
+	if(game.turn == game.you && game.onTable.length%game.players.length==0 && game.result==undefined) {
 		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);
@@ -358,7 +359,7 @@ window.document.emptyTable = function() {
 var inputFocused;
 
 window.document.removeInput = function() {
-	var input = $("input#chat");
+	var input = $("div#chat input");
 	var inputVal = input.val();
 	var remove = true;
 	for(var i=0; i<inputVal.length;i++) {
@@ -370,20 +371,47 @@ window.document.removeInput = function() {
 
 	if(remove) {
 		input.fadeOut(100, function() {input.val("");});
+		$("div#chatButton img").attr("src","../Resources/Other/chat.png");
 	}
 	else {
 		inputFocused = false;
 	}
 }
 
-$("body").on("keypress", function(event) {
+$("div#chatButton").on("click", function() {
 	var blackScreen = $("div.blackScreen");
-	if(event.keyCode == 13 && blackScreen.parent().length==0) {
-		var input = $("input#chat");
+	if(blackScreen.parent().length==0) {
+		var input = $("div#chat input");
 		var inputVal = input.val();
 		if(input.css("display") == "none"){
 			input.fadeIn(100);
 			input.focus();
+			inputFocused = true;
+			$("div#chatButton img").attr("src","../Resources/Other/send.png");
+		}
+		else {
+			input.fadeOut(100, function() {input.val("");});
+			inputFocused = false;
+			$.ajax({
+				type: "POST",
+				url: "/HTML/chat",
+				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
+				dataType: 'json'
+			});
+			$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+		}
+	}
+})
+
+$("body").on("keypress", function(event) {
+	var blackScreen = $("div.blackScreen");
+	if(event.keyCode==13 && blackScreen.parent().length==0) {
+		var input = $("div#chat input");
+		var inputVal = input.val();
+		if(input.css("display") == "none"){
+			input.fadeIn(100);
+			input.focus();
+			$("div#chatButton img").attr("src","../Resources/Other/send.png");
 			inputFocused = true;
 		}
 		else if(!inputFocused) {
