@@ -30,7 +30,7 @@ function main() {
 	var turn=0;
 	$.ajax({
 		type: "POST",
-		url: "/HTML/init",
+		url: "/HTML/getGameState",
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
@@ -183,20 +183,15 @@ function updateTurnIcon() {
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 }
 
-function endGame(response) {
-	clearInterval(pollInterval);
+function endGame() {
 	var endGameMessage = $("<div>").attr("id","endGameMessage");
-	var text = $("<p>").text(response.result);
+	var text = $("<p>").text(game.result);
 	var button = $("<div>").text("Main menu");
 	button.attr("onclick", "window.location.href = '/HTML/menu.html'");
 	endGameMessage.append(text);
 	endGameMessage.append(button);
 	var blackScreen = $("<div>").attr({class:"blackScreen", id:"blackScreen2"});
 	blackScreen.append(endGameMessage);
-	game.team1P = response.team1P;
-	game.team2P = response.team2P;
-	updateTableCards();
-	updateScore();
 	$("body").append(blackScreen);
 	blackScreen.fadeIn();
 }
@@ -210,13 +205,17 @@ function poll() {
 			dataType: 'json',
 			complete: function(xhr) {
 				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
-					if(xhr.responseJSON.result != undefined) {
-						endGame(xhr.responseJSON);
-						return;
-					}
 					var lengthOwnCards = game.cards.length;
 					var lengthTableCards = game.onTable.length;
 					game = xhr.responseJSON;
+
+					if(game.result != undefined) {
+						updateTableCards();
+						setTimeout(endGame, 2000);
+						clearInterval(pollInterval);
+						return;
+					}
+
 					if(lengthOwnCards != game.cards.length) updateOwnCards();
 					if(lengthTableCards != game.onTable.length) updateTableCards();
 					if(game.inbox.length !=0) displayMessages();
@@ -301,7 +300,7 @@ function updateTableCards() {
 	}
 	
 
-	if(game.turn == game.you && game.onTable.length%game.players.length==0) {
+	if(game.turn == game.you && game.onTable.length%game.players.length==0 && game.result==undefined) {
 		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
 		$("#player_1").append(giveCardsIcon);

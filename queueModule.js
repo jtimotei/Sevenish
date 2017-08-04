@@ -103,6 +103,7 @@ function match(gameMode) {
         removeFromPlayQueue(invalidEntries, gameMode);
         if(playersFound == gm.nrPlayers) {
             games.push(game);
+            gameModule.initializeGame(game);
             gameNr++;
             removeFromPlayQueue(indexes, gameMode);
             match(gameMode);

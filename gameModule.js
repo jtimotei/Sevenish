@@ -18,25 +18,6 @@ function checkGameId(req, res) {
     return false;
 }
 
-router.post('/HTML/init', function (req, res) {
-   if(checkGameId(req, res)) return;
-   
-   var g = games[req.body.gameId];
-    var index = -1;
-    for(var i=0;i<g.players.length;i++){
-        if(g.players[i].username == req.session.username) {
-            index = i;
-            break;
-        }
-    }
-    if(index>=0){
-        if(g.deck==undefined) initializeGame(req.body.gameId);
-        res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
-        return;
-    }
-    res.send("Access denied");
-});
-
 router.post("/HTML/chat", function(req, res){
     if(checkGameId(req, res)) return;
 
@@ -66,7 +47,7 @@ router.post('/HTML/putCardOnTable', function(req, res) {
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
             g.turn = g.holder;
             addPoints(req.body.gameId);
-            distributeCards(req.body.gameId);
+            distributeCards(g);
             g.onTable = [];
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
         } 
@@ -124,7 +105,7 @@ function checkGameEnding(req, res, index) {
     if(g.nrDistributedCards == 32) {
         for(var k=0; k<g.players.length;k++) 
             if(g.cards[k].length != 0) 
-                return false;
+                return undefined;
 
         if(!g.end) {
             g.end = true;
@@ -132,12 +113,11 @@ function checkGameEnding(req, res, index) {
             updateDB(g);            
         }
 
-        if(g.team1P == g.team2P) res.send({result:"Draw.", team1P:g.team1P, team2P:g.team2P});
-        else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) res.send({result:"You won!", team1P:g.team1P, team2P:g.team2P});
-        else res.send({result:"You lost!", team1P:g.team1P, team2P:g.team2P});
-        return true;
+        if(g.team1P == g.team2P) return "Draw"; 
+        else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) return "You won!"; 
+        else return "You lost!";
     }
-    else return false;
+    else return undefined;
 }
 
 router.post('/HTML/getGameState', function(req, res) {
@@ -146,8 +126,7 @@ router.post('/HTML/getGameState', function(req, res) {
     var g = games[req.body.gameId];
     for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
-            if(checkGameEnding(req, res, j)) return;
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox});
+            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox, result:checkGameEnding(req, res, j)});
             g.players[j].inbox=[];
             return;
         }
@@ -156,35 +135,35 @@ router.post('/HTML/getGameState', function(req, res) {
 })
 
 
-function shuffleCards(i) {
+function shuffleCards(g) {
     var temp = allcards.slice();
-    games[i].deck = [];
+    g.deck = [];
     for(var j=0;j<32;j++) {
         var index = Math.floor(Math.random()*(32-j));
-        games[i].deck[j] = temp[index];
+        g.deck[j] = temp[index];
         temp.splice(index,1);
     }
 }
 
-function distributeCards(i) {
+function distributeCards(g) {
     // nrDistributedCards is an index in the deck array that tells us which cards we already distributed(left) and which not(right)
-    var nr = games[i].nrDistributedCards;
+    var nr = g.nrDistributedCards;
     var j=0;
     while(j<4 && nr != 32) {
-        if(games[i].cards[0][j]==undefined) {
-            for(var k=0;k<games[i].players.length;k++) {
-                games[i].cards[k][j]=games[i].deck[k+nr];
+        if(g.cards[0][j]==undefined) {
+            for(var k=0;k<g.players.length;k++) {
+                g.cards[k][j]=g.deck[k+nr];
             }  
-            nr+=games[i].players.length;
+            nr+=g.players.length;
         }
         j++;
     }
-    games[i].nrDistributedCards = nr;
+    g.nrDistributedCards = nr;
 }
 
-function initializeGame(i) {
-    shuffleCards(i);
-    distributeCards(i);
+function initializeGame(g) {
+    shuffleCards(g);
+    distributeCards(g);
 }
 
 function initialize(g, c) {
@@ -194,3 +173,4 @@ function initialize(g, c) {
 
 module.exports.router = router;
 module.exports.initialize = initialize;
+module.exports.initializeGame = initializeGame;
