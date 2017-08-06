@@ -356,78 +356,131 @@ window.document.emptyTable = function() {
 		});
 	}
 
-var inputFocused;
-
-window.document.removeInput = function() {
-	var input = $("div#chat input");
-	var inputVal = input.val();
-	var remove = true;
-	for(var i=0; i<inputVal.length;i++) {
-		if(inputVal[i] != ' ') {
-			remove = false;
-			break;
+function isEmpty(text) {
+	for(var i=0; i<text.length;i++) {
+		if(text != ' ') {
+			return false;
 		}
 	}
-
-	if(remove) {
-		input.fadeOut(100, function() {input.val("");});
-		$("div#chatButton img").attr("src","../Resources/Other/chat.png");
-	}
-	else {
-		inputFocused = false;
-	}
+	return true;
 }
 
-$("div#chatButton").on("click", function() {
-	var blackScreen = $("div.blackScreen");
-	if(blackScreen.parent().length==0) {
-		var input = $("div#chat input");
-		var inputVal = input.val();
-		if(input.css("display") == "none"){
-			input.fadeIn(100);
-			input.focus();
-			inputFocused = true;
-			$("div#chatButton img").attr("src","../Resources/Other/send.png");
-		}
-		else {
-			input.fadeOut(100, function() {input.val("");});
-			inputFocused = false;
-			$.ajax({
-				type: "POST",
-				url: "/HTML/chat",
-				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
-				dataType: 'json'
-			});
-			$("div#chatButton img").attr("src","../Resources/Other/chat.png");
-		}
-	}
+var historyShown = false;
+var inputFocused = false;
+var inputShown = false;
+
+$("div#chat input").on("focus", function() {
+	inputFocused = true;
+	$("div#chatButton img").attr("src","../Resources/Other/send.png");
 })
+
+$("div#chat input").on("focusout", function() {
+	inputFocused = false;
+	if(isEmpty($("div#chat input").val()) && !historyShown) chatSlide6();
+	$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+})
+
+// both slide in
+function chatSlide1() {
+	$("div#chat").animate({"right": "0px"}, 150);
+	historyShown = true;
+	inputShown = true;
+}
+
+// both slide out
+function chatSlide2() {
+	$("div#chat").animate({"right": "-30%"}, 150);
+	historyShown = false;
+	inputShown = false;
+}
+
+// only history slide out
+function chatSlide3() {	
+	historyShown = false;
+	inputShown = true;
+	$("div#chat div#history").animate({"left": "100%"},150);
+}
+
+//  only history slide in
+function chatSlide4() {
+	historyShown=true;
+	inputShown = true;
+	$("div#chat div#history").animate({"left": "0px"},150);
+}
+
+// only input box slide in
+function chatSlide5() {
+	historyShown=false;
+	inputShown = true;
+	$("div#chat div#history").css({"left": "100%"});
+	$("div#chat").animate({"right": "0px"}, 150, function() {
+		$("div#chat input").focus();
+	});
+}
+
+// only input box slide out
+function chatSlide6() {
+	inputShown = false;
+	historyShown=false;
+	if(inputFocused) $("div#chat input").blur();	
+	$("div#chat").animate({"right": "-30%"}, 150, function() {
+		$("div#chat div#history").css({"left": "0px"});
+	});
+}
+
+function sendMessage() {
+	var input = $("div#chat input");
+	var inputVal = input.val();
+	if(!isEmpty(inputVal)) {
+		$.ajax({
+			type: "POST",
+			url: "/HTML/chat",
+			data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
+			dataType: 'json'
+		});
+	}
+	input.val("");
+}
+
+function enterHandler() {
+	if(inputShown && !inputFocused) $("div#chat input").focus();
+	else if(inputShown && inputFocused) {
+		sendMessage();
+		if(!historyShown) chatSlide6();
+	}
+	else if(!inputShown) chatSlide5();
+
+}
 
 $("body").on("keypress", function(event) {
 	var blackScreen = $("div.blackScreen");
-	if(event.keyCode==13 && blackScreen.parent().length==0) {
-		var input = $("div#chat input");
-		var inputVal = input.val();
-		if(input.css("display") == "none"){
-			input.fadeIn(100);
-			input.focus();
-			$("div#chatButton img").attr("src","../Resources/Other/send.png");
-			inputFocused = true;
+	if(event.ctrlKey && event.keyCode==17 && blackScreen.parent().length==0) {
+		if(!historyShown && !inputShown) {
+			chatSlide1();
 		}
-		else if(!inputFocused) {
-			input.focus();
-			inputFocused = true;
+		else if(!historyShown && inputShown) {
+			chatSlide4()
+		}
+		else if(!inputFocused && isEmpty($("div#chat input").val())) {
+			chatSlide2();
 		}
 		else {
-			input.fadeOut(100, function() {input.val("");});
-			inputFocused = false;
-			$.ajax({
-				type: "POST",
-				url: "/HTML/chat",
-				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
-				dataType: 'json'
-			});
+			chatSlide3();
 		}
+	}
+	else if(event.keyCode==13 && blackScreen.parent().length==0) enterHandler();
+})
+
+$("body").on("keyup", function() {
+	if(event.keyCode==27 && inputShown && inputFocused) $("div#chat input").blur();
+})
+
+$("div#chatButton").on("mousedown", function(event) {
+	if($("div#chatButton img").attr("src") == "../Resources/Other/chat.png" && !inputShown) {
+		chatSlide5();
+	}
+	else if($("div#chatButton img").attr("src") == "../Resources/Other/send.png") {
+		sendMessage();
 	}
 })
 
