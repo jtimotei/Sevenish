@@ -1,6 +1,9 @@
 // the variable that stores all the information regarding the game
 var game;
 
+// the variable that stores all messages
+var messages = [];
+
 // the number of cards in hand -> useful for determining the layout of the cards
 var nrOfCardsInHand;
 
@@ -72,7 +75,27 @@ window.adapt = function() {
 	adaptMessagePositions();
 }
 
+// prints the messages in the history div
+function printToHistory() {
+	for(var j=0; j<messages.length; j++) {
+		var mesaj; // romanian for message -> ran out of ideas for names 
+		var date = new Date(messages[j].date);
+		if(messages[j].sender === game.you) {
+			var message='['+date.getHours()+':'+date.getMinutes()+'] '+ messages[j].message;
+			mesaj = $("<div class='ownMessage'>").text(message);
+		}
+		else {
+			var message='['+date.getHours()+':'+date.getMinutes()+'] '+game.players[messages[j].sender].username+': '+ messages[j].message;
+			mesaj = $("<div class='message'>").text(message);
+		}
+		$("div#chat div#history").append(mesaj);
+	}
+	messages=[];	
+}
+
 function displayMessages() {
+	messages = messages.concat(game.inbox);
+	printToHistory();
 	var i=0;
 	if(game.inbox.length>=3) i=game.inbox.length-3;
 	for(;i<game.inbox.length; i++) {
@@ -198,34 +221,38 @@ function endGame() {
 
 function poll() {
 	pollInterval = setInterval(function() {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/getGameState",
-			data: {gameId:window.location.search.substring(3)},
-			dataType: 'json',
-			complete: function(xhr) {
-				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
-					var lengthOwnCards = game.cards.length;
-					var lengthTableCards = game.onTable.length;
-					game = xhr.responseJSON;
-
-					if(game.result != undefined) {
-						updateTableCards();
-						setTimeout(endGame, 2000);
-						clearInterval(pollInterval);
-						return;
-					}
-
-					if(lengthOwnCards != game.cards.length) updateOwnCards();
-					if(lengthTableCards != game.onTable.length) updateTableCards();
-					if(game.inbox.length !=0) displayMessages();
-				}
-				else {
-					window.location.pathname = "/HTML/not_found.html";
-				}
-			}
-		})
+		getGameState();
 	}, 1500);
+}
+
+function getGameState() {
+	$.ajax({
+		type: "POST",
+		url: "/HTML/getGameState",
+		data: {gameId:window.location.search.substring(3)},
+		dataType: 'json',
+		complete: function(xhr) {
+			if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
+				var lengthOwnCards = game.cards.length;
+				var lengthTableCards = game.onTable.length;
+				game = xhr.responseJSON;
+
+				if(game.result != undefined) {
+					updateTableCards();
+					setTimeout(endGame, 2000);
+					clearInterval(pollInterval);
+					return;
+				}
+
+				if(lengthOwnCards != game.cards.length) updateOwnCards();
+				if(lengthTableCards != game.onTable.length) updateTableCards();
+				if(game.inbox.length !=0) displayMessages();
+			}
+			else {
+				window.location.pathname = "/HTML/not_found.html";
+			}
+		}
+	})
 }
 
 function updateOwnCards() {
@@ -436,7 +463,11 @@ function sendMessage() {
 			type: "POST",
 			url: "/HTML/chat",
 			data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
-			dataType: 'json'
+			dataType: 'json',
+			complete: function(xhr) {
+				if(xhr.responseJSON != undefined) game.inbox = xhr.responseJSON;
+				displayMessages();
+			}
 		});
 	}
 	input.val("");

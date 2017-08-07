@@ -30,14 +30,14 @@ router.post("/HTML/chat", function(req, res){
      for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<g.players.length; i++) {
-                if(i!=j) {
-                    g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
-                }
+                g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
             }
+            res.send(g.players[j].inbox);
+            g.players[j].inbox = [];
+            return;
         }
     }
     res.send();
-
 });
 
 router.post('/HTML/putCardOnTable', function(req, res) {
