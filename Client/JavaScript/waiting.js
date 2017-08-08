@@ -27,6 +27,7 @@ function poll() {
 			data: {date:id, lastSent:currentTime.getTime(), gameMode:window.location.search.substring(4)},
 			dataType: 'json',
 			complete: function(xhr) {
+				window.closeIt=true;
 				if(xhr.responseJSON.message == "Game found") {
 					if(window.location.search.substring(4) == "0") window.location.href= "/HTML/game1v1.html?g="+xhr.responseJSON.id;
 					else window.location.href= "/HTML/game2v2.html?g="+xhr.responseJSON.id;

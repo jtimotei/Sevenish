@@ -15,7 +15,8 @@ const cardPositions =
 	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
 
 // how the messages will be displayed depending on sender
-const messagePositions = [{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
+const messagePositions = [{message:{top: -80, left: 195}, circle1:{top: -15, left: 170}, circle2:{top: 10, left: 150}},
+						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
 						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
 						{message:{top: 145, left: -200}, circle1:{top: 120, left: 30}, circle2:{top: 105, left: 45}}];
 
@@ -23,7 +24,7 @@ const messagePositions = [{message:{top: 135, left: 180}, circle1:{top: 120, lef
 var rotationTableCards = [];
 
 // this array keeps track of whether there is or not a message displayed at a player
-var messageDisplayed = [0, 0, 0]; 
+var messageDisplayed = [0, 0, 0, 0]; 
 
 var pollInterval;
 
@@ -52,20 +53,21 @@ function main() {
 }
 
 window.adaptMessagePositions = function() {
-	for(var player=2; player<=4; player++) {
-		if(game.players.length != 2 || player == 3) { 
-			if(messageDisplayed[player-2]) {
-				var playerDiv = document.querySelector("#player_"+player+" div.userDivs").getBoundingClientRect();		
+	for(var player=1; player<=4; player++) {
+		if(game.players.length != 2 || player == 3 || player == 1) { 
+			if(messageDisplayed[player-1]) {
+				var selector = player == 1? "div#ownInfo":"#player_"+player+" div.userDivs";
+				var playerDiv = document.querySelector(selector).getBoundingClientRect();		
 				var textbox = $("#textbox_"+(player));
 				var circle1 = $("#circle1_"+(player));
 				var circle2 = $("#circle2_"+(player));
 
-				textbox.css({"top":playerDiv.top + messagePositions[player-2].message.top, 
-					"left":playerDiv.left + messagePositions[player-2].message.left});
-				circle1.css({"top":playerDiv.top + messagePositions[player-2].circle1.top, 
-					"left":playerDiv.left + messagePositions[player-2].circle1.left});
-				circle2.css({"top":playerDiv.top + messagePositions[player-2].circle2.top, 
-					"left":playerDiv.left + messagePositions[player-2].circle2.left});
+				textbox.css({"top":playerDiv.top + messagePositions[player-1].message.top, 
+					"left":playerDiv.left + messagePositions[player-1].message.left});
+				circle1.css({"top":playerDiv.top + messagePositions[player-1].circle1.top, 
+					"left":playerDiv.left + messagePositions[player-1].circle1.left});
+				circle2.css({"top":playerDiv.top + messagePositions[player-1].circle2.top, 
+					"left":playerDiv.left + messagePositions[player-1].circle2.left});
 			}
 		}
 	}
@@ -107,17 +109,22 @@ function displayMessages() {
 
 // the function that prints the messages send by the players
 function printMessage(text, playerIndex) {
-	var player = game.players.length == 2? 1:(4+(playerIndex-game.you))%4-1;
+	var player;
+	if(game.players.length == 2 && playerIndex == game.you) player = 0;
+	else if(game.players.length == 2) player=2;
+	else player = (4+(playerIndex-game.you))%4;
+
 	var textbox;
 	var circle1;
 	var circle2; 
 
 	if(messageDisplayed[player]==0) { 
-		var playerDiv = document.querySelector("#player_"+(player+2)+" div.userDivs").getBoundingClientRect();
+		var selector = player == 0? "div#ownInfo":"#player_"+(player+1)+" div.userDivs";
+		var playerDiv = document.querySelector(selector).getBoundingClientRect();
 
-		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+(player+2)});
-		circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+(player+2)});
-		circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+(player+2)});
+		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+(player+1)});
+		circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+(player+1)});
+		circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+(player+1)});
 		textbox.css({"top":(playerDiv.top + messagePositions[player].message.top), 
 			"left":(playerDiv.left + messagePositions[player].message.left)}); 
 		circle1.css({"top":(playerDiv.top + messagePositions[player].circle1.top), 
@@ -139,9 +146,9 @@ function printMessage(text, playerIndex) {
 		circle2.fadeIn();
 	}
 	else {
-		textbox = $("#textbox_"+(player+2));
-		circle1 = $("#circle1_"+(player+2));
-		circle2 = $("#circle2_"+(player+2));
+		textbox = $("#textbox_"+(player+1));
+		circle1 = $("#circle1_"+(player+1));
+		circle2 = $("#circle2_"+(player+1));
 		var message = $("<p>").text(text);
 		if(messageDisplayed[player]>2) {
 			textbox.children().last().remove();
@@ -222,7 +229,7 @@ function endGame() {
 function poll() {
 	pollInterval = setInterval(function() {
 		getGameState();
-	}, 1500);
+	}, 1000);
 }
 
 function getGameState() {
@@ -330,7 +337,7 @@ function updateTableCards() {
 	if(game.turn == game.you && game.onTable.length%game.players.length==0 && game.result==undefined) {
 		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
-		$("#player_1").append(giveCardsIcon);
+		$("body").append(giveCardsIcon);
 	}
 }
 
@@ -407,58 +414,100 @@ $("div#chat input").on("focusout", function() {
 	$("div#chatButton img").attr("src","../Resources/Other/chat.png");
 })
 
+var animationInProgress = false;
+
 // both slide in
 function chatSlide1() {
-	$("div#chat").animate({"right": "0px"}, 150);
-	historyShown = true;
-	inputShown = true;
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = true;
+		inputShown = true;
+		$("div#chat").animate({"right": "0px"}, 150, function() {animationInProgress=false});
+	}
 }
 
 // both slide out
 function chatSlide2() {
-	$("div#chat").animate({"right": "-30%"}, 150);
-	historyShown = false;
-	inputShown = false;
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = false;
+		inputShown = false;
+		$("div#chat").animate({"right": "-30%"}, 150, function() {animationInProgress=false});
+	}
 }
 
 // only history slide out
 function chatSlide3() {	
-	historyShown = false;
-	inputShown = true;
-	$("div#chat div#history").animate({"left": "100%"},150);
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = false;
+		inputShown = true;
+		$("div#chat div#history").animate({"left": "100%"},150, function() {animationInProgress=false});
+	}
 }
 
 //  only history slide in
 function chatSlide4() {
-	historyShown=true;
-	inputShown = true;
-	$("div#chat div#history").animate({"left": "0px"},150);
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown=true;
+		inputShown = true;
+		$("div#chat div#history").animate({"left": "0px"},150, function() {animationInProgress = false;});
+	}
 }
 
 // only input box slide in
 function chatSlide5() {
-	historyShown=false;
-	inputShown = true;
-	$("div#chat div#history").css({"left": "100%"});
-	$("div#chat").animate({"right": "0px"}, 150, function() {
-		$("div#chat input").focus();
-	});
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown=false;
+		inputShown = true;
+		$("div#chat div#history").css({"left": "100%"});
+		$("div#chat").animate({"right": "0px"}, 150, function() {
+			$("div#chat input").focus();
+			animationInProgress=false;
+		});
+	}
 }
 
 // only input box slide out
 function chatSlide6() {
-	inputShown = false;
-	historyShown=false;
-	if(inputFocused) $("div#chat input").blur();	
-	$("div#chat").animate({"right": "-30%"}, 150, function() {
-		$("div#chat div#history").css({"left": "0px"});
-	});
+	if(!animationInProgress) {
+		animationInProgress=true;
+		inputShown = false;
+		historyShown=false;
+		if(inputFocused) $("div#chat input").blur();	
+		$("div#chat").animate({"right": "-30%"}, 150, function() {
+			$("div#chat div#history").css({"left": "0px"});
+			animationInProgress=false;
+		});
+	}
 }
 
+var audio;
 function sendMessage() {
 	var input = $("div#chat input");
 	var inputVal = input.val();
-	if(!isEmpty(inputVal)) {
+	if(inputVal === "/h" || inputVal === "/h " || inputVal === "/history" || inputVal === "/history ") {
+		if(historyShown) chatSlide3();
+		else chatSlide4();
+	}
+	else if(inputVal === '/c') {
+		if(historyShown) chatSlide6();
+		else {
+			chatSlide2();
+			$("div#chat input").blur();
+		}
+	}
+	else if(inputVal === "/never" || inputVal === "/never ") {
+		if(audio != undefined) audio.pause();
+		audio = new Audio('../Resources/Other/never.mp3');
+		audio.play();
+	}
+	else if(inputVal === "/stop") {
+		if(audio != undefined) audio.pause();
+	}
+	else if(!isEmpty(inputVal)) {
 		$.ajax({
 			type: "POST",
 			url: "/HTML/chat",

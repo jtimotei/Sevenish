@@ -5,6 +5,8 @@
 html{
 	height: 100%;
 	width: 100%;
+	overflow:hidden;
+	position: fixed;
 }
 body{
 	text-align: center;
@@ -13,6 +15,7 @@ body{
 	font-size:100%;
 	background-color: rgb(0, 26, 51);
 	overflow:hidden;
+	position: fixed;
 }
 
 div#score {

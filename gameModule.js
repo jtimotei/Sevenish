@@ -79,7 +79,7 @@ function updateDB(g) {
 
     var query;
     for(var i=0;i<g.players.length; i++){
-        if(g.team1P == g.team2P) query=qeuryDraw;
+        if(g.team1P == g.team2P) query=queryDraw;
         else if((i%2 == 0 && g.team1P > g.team2P) || (i%2 == 1 && g.team1P < g.team2P)) query= queryWin;
         else query=queryLoss;
 
@@ -113,7 +113,7 @@ function checkGameEnding(req, res, index) {
             updateDB(g);            
         }
 
-        if(g.team1P == g.team2P) return "Draw"; 
+        if(g.team1P == g.team2P) return "Draw."; 
         else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) return "You won!"; 
         else return "You lost!";
     }
