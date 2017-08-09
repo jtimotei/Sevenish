@@ -9,10 +9,10 @@ var nrOfCardsInHand;
 
 // how the 'own cards' will be displayed
 const cardPositions = 
-	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
-	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
-	[{rotationAngle:-30,top:70, left:110}, {rotationAngle:-10,top:20,left:40}, 
-	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
+	[[{rotationAngle:0, top:5, left:0}],[{rotationAngle:-10, top:6, left:4}, {rotationAngle:10,top:6,left:-4}],
+	[{rotationAngle:-20,top:7, left:7}, {rotationAngle:0,top:5, left:0}, {rotationAngle:20,top:7, left:-7}],
+	[{rotationAngle:-30,top:9, left:9}, {rotationAngle:-10,top:5,left:3}, 
+	{rotationAngle:10,top:5,left:-3}, {rotationAngle:30,top:9, left:-9}]];
 
 // how the messages will be displayed depending on sender
 const messagePositions = [{message:{top: -80, left: 195}, circle1:{top: -15, left: 170}, circle2:{top: 10, left: 150}},
@@ -119,28 +119,14 @@ function printMessage(text, playerIndex) {
 	var circle2; 
 
 	if(messageDisplayed[player]==0) { 
-		var selector = player == 0? "div#ownInfo":"#player_"+(player+1)+" div.userDivs";
-		var playerDiv = document.querySelector(selector).getBoundingClientRect();
 
-		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+(player+1)});
-		circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+(player+1)});
-		circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+(player+1)});
-		textbox.css({"top":(playerDiv.top + messagePositions[player].message.top), 
-			"left":(playerDiv.left + messagePositions[player].message.left)}); 
-		circle1.css({"top":(playerDiv.top + messagePositions[player].circle1.top), 
-			"left":(playerDiv.left + messagePositions[player].circle1.left)});
-		circle2.css({"top":(playerDiv.top + messagePositions[player].circle2.top), 
-			"left":(playerDiv.left + messagePositions[player].circle2.left)});
+		textbox = $("div#textbox_"+(player+1));
+		circle1 = $("div#circle1_"+(player+1));
+		circle2 = $("div#circle2_"+(player+1));
 
 		var message = $("<p>").text(text);
 		textbox.prepend(message);
 
-		textbox.hide();
-		circle1.hide();
-		circle2.hide();
-		$("body").append(textbox);
-		$("body").append(circle1);
-		$("body").append(circle2);
 		textbox.fadeIn();
 		circle1.fadeIn();
 		circle2.fadeIn();
@@ -165,9 +151,9 @@ function printMessage(text, playerIndex) {
 		if(message.parent().length > 0) {
 			messageDisplayed[player]--;
 			if(messageDisplayed[player]==0) {
-				$(circle1).fadeOut("normal", function() { circle1.remove(); });
-				$(circle2).fadeOut("normal", function() { circle2.remove(); });
-				$(textbox).fadeOut("normal", function() { textbox.remove(); });
+				$(circle1).fadeOut("normal");
+				$(circle2).fadeOut("normal");
+				$(textbox).fadeOut("normal", function() { $(textbox).text("") });
 			} else{			
 				message.fadeOut();
 			}
@@ -189,13 +175,13 @@ function updateScore() {
 // this method is used to update the icon and username of the other players
 function updateOtherPlayers() {
 	var i=game.you;
-	$("#ownInfo").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
-	$("#ownInfo").append("<p>"+game.players[i].username+"</p>");
+	$("#ownInfo").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/></div>");
+	$("#ownInfo").append("<div id='username'>"+game.players[i].username+"</div>");
 
 	if(game.players.length == 2) {
 		var opponent = game.you == 0? 1:0;
-		$("#player_3 div.userDivs").append("<img src='../Resources/Icons/"+game.players[opponent].icon+".png' class='icons'/>");
-		$("#player_3 div.userDivs").append("<p>"+game.players[opponent].username+"</p>");
+		$("#player_3 div.userDivs").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[opponent].icon+".png' class='icons'/></div");
+		$("#player_3 div.userDivs").append("<div id='username'>"+game.players[opponent].username+"</div>");
 	}
 	else {
 		for(var j=2; j<=4; j++) {
@@ -276,8 +262,8 @@ function updateOwnCards() {
 				draggable:false
 			});
 			img.css("transform", "rotate("+cardPositions[nrOfCardsInHand-1][i].rotationAngle+"deg)");
-			img.css("top", cardPositions[nrOfCardsInHand-1][i].top);
-			img.css("left", cardPositions[nrOfCardsInHand-1][i].left);
+			img.css("top", cardPositions[nrOfCardsInHand-1][i].top+"vmin");
+			img.css("left", cardPositions[nrOfCardsInHand-1][i].left+"vmin");
 			$("#player_1").append(img);
 		}
 	}
@@ -343,16 +329,16 @@ function updateTableCards() {
 
 window.document.pullCard = function(card) {
 	var index = card.getAttribute("data-nr");
-	var topOffset = cardPositions[nrOfCardsInHand-1][index].top-50;
+	var topOffset = (cardPositions[nrOfCardsInHand-1][index].top-6) +"vmin";
 	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
-	leftOffset = leftOffset - (0.4 *leftOffset);
+	leftOffset = (leftOffset - (0.4 *leftOffset)) +"vmin";
 	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeOutExpo");
 }
 
 window.document.putCardBack = function(card) {	
 	var index = card.getAttribute("data-nr");
-	var topOffset = cardPositions[nrOfCardsInHand-1][index].top;
-	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
+	var topOffset = cardPositions[nrOfCardsInHand-1][index].top + "vmin";
+	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left+"vmin";
 	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeInExpo");
 }
 
@@ -375,20 +361,21 @@ window.document.selectCard = function(c) {
 }
 
 window.document.emptyTable = function() {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/putCardOnTable",
-			data: {gameId:window.location.search.substring(3), card:-1},
-			dataType: 'json',
-			complete: function(xhr) {
-				if(xhr.responseText != "Invalid action") {
-					game = xhr.responseJSON;
-					updateOwnCards();
-					updateTableCards();
-				}
+
+	$.ajax({
+		type: "POST",
+		url: "/HTML/putCardOnTable",
+		data: {gameId:window.location.search.substring(3), card:-1},
+		dataType: 'json',
+		complete: function(xhr) {
+			if(xhr.responseText != "Invalid action") {
+				game = xhr.responseJSON;
+				updateOwnCards();
+				updateTableCards();
 			}
-		});
-	}
+		}
+	});
+}
 
 function isEmpty(text) {
 	for(var i=0; i<text.length;i++) {
@@ -410,8 +397,8 @@ $("div#chat input").on("focus", function() {
 
 $("div#chat input").on("focusout", function() {
 	inputFocused = false;
-	if(isEmpty($("div#chat input").val()) && !historyShown) chatSlide6();
 	$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+	if(isEmpty($("div#chat input").val()) && !historyShown) chatSlide6();
 })
 
 var animationInProgress = false;
@@ -562,6 +549,10 @@ $("div#chatButton").on("mousedown", function(event) {
 	else if($("div#chatButton img").attr("src") == "../Resources/Other/send.png") {
 		sendMessage();
 	}
+})
+
+$(window).blur(function() {
+	$("div#chat input").blur();
 })
 
 $(document).ready(main);

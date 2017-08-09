@@ -1,0 +1,99 @@
+div.circle {
+	z-index:3;
+	position: absolute;
+	background-color: rgba(256, 256, 256, 0.8);
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    display: none;
+}
+
+div.circle1 {
+	height:14px;
+	width:14px;
+	border-radius: 7px;
+}
+
+div.circle2 {
+	height:10px;
+	width:10px;
+	border-radius: 5px;
+}
+
+div.textbox {
+	z-index:3;
+	position:absolute;
+	color:black;
+	background-color: rgba(256, 256, 256, 0.8);
+	border-radius:10px;
+	width:25%;
+	max-width:300px;
+	text-align: left;
+	padding:10px;
+	font-size: 16px;
+	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
+    overflow:hidden;
+    display: none;
+}
+
+div.textbox:hover{
+	color:black;
+	background-color: white;
+}
+
+div.textbox p{
+	margin:10px 0px 10px 0px;
+}
+
+div#textbox_1 {
+	bottom:24vmin;
+	left:24vmin;
+}
+
+div#circle1_1 {
+	bottom:21vmin;
+	left:21vmin;
+}
+
+div#circle2_1 {
+	bottom:18vmin;
+	left:18vmin;
+}
+
+div#textbox_2 {
+
+}
+
+div#circle1_2 {
+
+}
+
+div#circle2_2 {
+	
+}
+
+div#textbox_3 {
+
+}
+
+div#circle1_3 {
+
+}
+
+div#circle2_3 {
+	
+}
+
+div#textbox_4 {
+
+}
+
+div#circle1_4 {
+
+}
+
+div#circle2_4 {
+	
+}

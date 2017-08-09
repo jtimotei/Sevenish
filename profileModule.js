@@ -4,7 +4,7 @@ var connection;
 
 function getWinrate(games, wins) {
     if(games==0) return 0;
-    return (wins*100)/games;
+    return Math.floor((wins*100)/games);
 }
 
 router.get("/getInfo", function(req, res) {

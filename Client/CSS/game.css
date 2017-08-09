@@ -19,7 +19,7 @@ body{
 }
 
 div#score {
-	padding:10px;
+	padding:2vmin;
 	text-align: left;
 	color:grey;
 	font-family: "Righteous";
@@ -27,6 +27,7 @@ div#score {
 	top:0px;
 	left:0px;
 	margin:0px;
+	font-size:3vmin;
 }
 
 #player_1 {
@@ -34,7 +35,6 @@ div#score {
 	width: 100%;
 	position: relative;
 }
-
 
 #player_3 {
 	width: 100%;
@@ -64,7 +64,7 @@ div#score {
 }
 
 #table {
-	border-radius: 10px;
+	border-radius: 1vmin;
 	background-color: rgb(77, 77, 51);
 	-webkit-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
@@ -77,23 +77,20 @@ div#score {
 }
 
 div.userDivs {
-	padding:8px;
+	padding:1vmin;
 	position: relative;
-	border-radius: 10px;
+	border-radius: 2vmin;
 	top:50%;
 	left:50%;
 	transform: translate(-50%, -50%);
-	max-width: 200px;
+	width: 20vmin;
+	height: 18vmin;
+	max-height: 90%;
+	max-width: 30%;
 	color:lightgrey;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-}
-
-div.userDivs p{
-	margin-top:5px;
-	font-size:1.4em;
-	font-family:'Anton';
 }
 
 #player_2 div.userDivs, #player_4 div.userDivs {
@@ -119,8 +116,14 @@ img.cards {
 	-webkit-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    max-height: 65%;
+    max-width: 65%;
+    width: auto;
+    height: auto;
+    display: block;
 
 }
+
 
 #blackScreen1 p {
 	position:relative;
@@ -143,9 +146,13 @@ img.cards {
 
 #player_1 img.cards {
 	margin:0.4vmin;
+	top:50%;
+	transform: translateY(-50%);
 	position:relative;
-	max-width: 23%;
-	max-height: 120%;
+	max-width: 18%;
+	max-height: 75%;
+	width: auto;
+	height: auto;
 	z-index: 2;
 
 	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
@@ -159,11 +166,11 @@ img.cards {
 	cursor:pointer;
 }
 
+
 .icons{
-	max-width: 80%;
-	max-height: 90%;
-	height:128px;
-	width: 128px;
+	max-width: 100%;
+	height: 100%;
+	width: auto;
 }
 
 img#giveCards {
@@ -179,81 +186,41 @@ img#giveCards:hover {
 	cursor: pointer;
 }
 
+div#wrapper {
+	width: 100%;
+	height: 80%;
+}
+
 div#ownInfo {
 	position: absolute;
 	bottom:0px;
 	left:0px;
 	background-color: rgb(0, 51, 102);
-	padding:8px;
+	padding:1vmin;
 	z-index:1;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    border-top-right-radius: 10px;
-	max-width: 200px;
-	width:20%;
+    border-top-right-radius: 2vmin;
+	width: 20vmin;
+	height: 20vmin;
 	color:lightgrey;
 }
 
-div#ownInfo p{
-	margin-top:5px;
-	font-size:1.4em;
+div#username{
+	width: 100%;
+	margin:0px;
 	font-family:'Anton';
+	height: 20%;
+	font-size:3vmin;
 }
 
 #turnIcon {
 	position:absolute;
 	left:70%;
 	top:2px;
-	width:30px;
-	height:30px;
-}
-
-div.circle {
-	z-index:3;
-	position: absolute;
-	background-color: rgba(256, 256, 256, 0.8);
-	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-}
-
-div.circle1 {
-	height:14px;
-	width:14px;
-	border-radius: 7px;
-}
-
-div.circle2 {
-	height:10px;
-	width:10px;
-	border-radius: 5px;
-}
-
-div.textbox {
-	z-index:3;
-	position:absolute;
-	color:black;
-	background-color: rgba(256, 256, 256, 0.8);
-	border-radius:10px;
-	width:25%;
-	max-width:300px;
-	text-align: left;
-	padding:10px;
-	font-size: 16px;
-	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    overflow:hidden;
-}
-
-div.textbox:hover{
-	color:black;
-	background-color: white;
-}
-
-div.textbox p{
-	margin:10px 0px 10px 0px;
+	width:5vmin;
+	height:5vmin;
 }
 
 div#chat {
@@ -331,7 +298,7 @@ div.blackScreen {
 }
 
 div#blackScreen1 {
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
 	padding-top:20px;
 	cursor:zoom-out;
