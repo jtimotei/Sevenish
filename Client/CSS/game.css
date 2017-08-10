@@ -86,7 +86,7 @@ div.userDivs {
 	width: 20vmin;
 	height: 18vmin;
 	max-height: 90%;
-	max-width: 30%;
+	max-width: 90%;
 	color:lightgrey;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -145,24 +145,21 @@ img.cards {
 }
 
 #player_1 img.cards {
-	margin:0.4vmin;
 	top:50%;
 	transform: translateY(-50%);
 	position:relative;
-	max-width: 18%;
-	max-height: 75%;
+	max-width: 17%;
+	max-height: 80%;
 	width: auto;
 	height: auto;
 	z-index: 2;
-
 	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    border:0.2vmin solid black;
 }
 
 #player_1 img.cards:hover {
-	margin:0.1vmin;
-	border:0.4vmin solid black;
 	cursor:pointer;
 }
 

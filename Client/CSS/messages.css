@@ -1,7 +1,7 @@
 div.circle {
 	z-index:3;
 	position: absolute;
-	background-color: rgba(256, 256, 256, 0.8);
+	background-color: rgba(256, 256, 256, 1);
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
@@ -24,7 +24,7 @@ div.textbox {
 	z-index:3;
 	position:absolute;
 	color:black;
-	background-color: rgba(256, 256, 256, 0.8);
+	background-color: rgba(256, 256, 256, 0.9);
 	border-radius:10px;
 	width:25%;
 	max-width:300px;
@@ -48,13 +48,13 @@ div.textbox p{
 }
 
 div#textbox_1 {
-	bottom:24vmin;
-	left:24vmin;
+	bottom:22vmin;
+	left:22vmin;
 }
 
 div#circle1_1 {
-	bottom:21vmin;
-	left:21vmin;
+	bottom:20vmin;
+	left:20vmin;
 }
 
 div#circle2_1 {
@@ -63,37 +63,46 @@ div#circle2_1 {
 }
 
 div#textbox_2 {
-
+	top:53%;
+	left:20%;
 }
 
 div#circle1_2 {
-
+	top:51%;
+	left:18%;
 }
 
 div#circle2_2 {
-	
+	top:49%;
+	left:16%;
 }
 
 div#textbox_3 {
-
+	top:18%;
+	left:58%;
 }
 
 div#circle1_3 {
-
+	top:17%;
+	left:56%;
 }
 
 div#circle2_3 {
-	
+	top:16%;
+	left:54%;
 }
 
 div#textbox_4 {
-
+	top:51%;
+	right:21%;
 }
 
 div#circle1_4 {
-
+	top:49%;
+	right:19%;
 }
 
 div#circle2_4 {
-	
+	top:47%;
+	right:17%;
 }

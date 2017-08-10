@@ -52,31 +52,6 @@ function main() {
 	});
 }
 
-window.adaptMessagePositions = function() {
-	for(var player=1; player<=4; player++) {
-		if(game.players.length != 2 || player == 3 || player == 1) { 
-			if(messageDisplayed[player-1]) {
-				var selector = player == 1? "div#ownInfo":"#player_"+player+" div.userDivs";
-				var playerDiv = document.querySelector(selector).getBoundingClientRect();		
-				var textbox = $("#textbox_"+(player));
-				var circle1 = $("#circle1_"+(player));
-				var circle2 = $("#circle2_"+(player));
-
-				textbox.css({"top":playerDiv.top + messagePositions[player-1].message.top, 
-					"left":playerDiv.left + messagePositions[player-1].message.left});
-				circle1.css({"top":playerDiv.top + messagePositions[player-1].circle1.top, 
-					"left":playerDiv.left + messagePositions[player-1].circle1.left});
-				circle2.css({"top":playerDiv.top + messagePositions[player-1].circle2.top, 
-					"left":playerDiv.left + messagePositions[player-1].circle2.left});
-			}
-		}
-	}
-}
-
-window.adapt = function() {
-	adaptMessagePositions();
-}
-
 // prints the messages in the history div
 function printToHistory() {
 	for(var j=0; j<messages.length; j++) {
@@ -186,8 +161,8 @@ function updateOtherPlayers() {
 	else {
 		for(var j=2; j<=4; j++) {
 			i=(i+1)%4;
-			$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
-			$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
+			$("#player_"+j+" div.userDivs").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/></div>");
+			$("#player_"+j+" div.userDivs").append("<div id='username'>"+game.players[i].username+"</div>");
 		}
 	}
 }
