@@ -14,12 +14,6 @@ const cardPositions =
 	[{rotationAngle:-30,top:9, left:9}, {rotationAngle:-10,top:5,left:3}, 
 	{rotationAngle:10,top:5,left:-3}, {rotationAngle:30,top:9, left:-9}]];
 
-// how the messages will be displayed depending on sender
-const messagePositions = [{message:{top: -80, left: 195}, circle1:{top: -15, left: 170}, circle2:{top: 10, left: 150}},
-						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
-						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
-						{message:{top: 145, left: -200}, circle1:{top: 120, left: 30}, circle2:{top: 105, left: 45}}];
-
 // the variable stores the rotation angle of the cards on the table  
 var rotationTableCards = [];
 
@@ -268,9 +262,11 @@ window.document.zoomInCards = function() {
 
 window.document.changeIcon = function() {
 	var img = $("#giveCards");
-	if(img.attr("src") == "../Resources/Icons/giveCards.png") img.attr("src", "../Resources/Icons/giveCardsHover.png");
-	else img.attr("src", "../Resources/Icons/giveCards.png");
+	if(img.attr("src") == "../Resources/Icons/hand.png") img.attr("src", "../Resources/Icons/handHover.png");
+	else img.attr("src", "../Resources/Icons/hand.png");
 }
+
+
 
 function updateTableCards() {
 	$("#table").empty();
@@ -296,9 +292,9 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%game.players.length==0 && game.result==undefined) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/hand.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
-		$("body").append(giveCardsIcon);
+		$("div#table").append(giveCardsIcon);
 	}
 }
 
