@@ -21,20 +21,29 @@ var rotationTableCards = [];
 var messageDisplayed = [0, 0, 0, 0]; 
 
 var pollInterval;
-
+var turnTimeout;
 // the main function
 // initializes the game and calls the poll function
 function main() {
 	var turn=0;
+
 	$.ajax({
 		type: "POST",
 		url: "/HTML/getGameState",
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
-			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied") window.location.pathname = "/HTML/not_found.html";
+			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied" || xhr.responseText=="Not authorized") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
+				if(game.players.length == 2) {
+					$("div#player_3 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+				}
+				else {
+					$("div#player_3 div.userDivs").css({"background-color":"rgb(0, 51, 102)", "display":"block"});
+					$("div#player_2 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+					$("div#player_4 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+				}
 				updateOtherPlayers();
 				updateOwnCards();
 				updateTableCards();
@@ -44,6 +53,7 @@ function main() {
 			}
 		}
 	});
+
 }
 
 // prints the messages in the history div
@@ -161,11 +171,22 @@ function updateOtherPlayers() {
 	}
 }
 
-function updateTurnIcon() {
+function timeoutAnimation() {
+	var timeoutWrapper = $("<div id='timeoutWrapper'>").html("<div id='timeout'></div>");
+	$("body").append(timeoutWrapper);
+}
+
+function updateTurn() {
 	$("img#turnIcon").remove();
-	if(game.turn == game.you) $("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+	$("div#timeout").remove();
+	if(game.turn == game.you) {
+		$("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+		turnTimeout = setTimeout(timeoutAnimation, 11500);
+	}
 	else if(game.players.length == 2) $("#player_3 div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+
+
 }
 
 function endGame() {
@@ -200,6 +221,7 @@ function getGameState() {
 				game = xhr.responseJSON;
 
 				if(game.result != undefined) {
+					updateOwnCards();
 					updateTableCards();
 					setTimeout(endGame, 2000);
 					clearInterval(pollInterval);
@@ -272,7 +294,7 @@ function updateTableCards() {
 	$("#table").empty();
 
 	updateScore();
-	updateTurnIcon();
+	updateTurn();
 	
 	window.document.zoomOutCards();
 
@@ -315,6 +337,7 @@ window.document.putCardBack = function(card) {
 
 window.document.selectCard = function(c) {
 	if(game.turn == game.you) {
+		clearTimeout(turnTimeout);
 		$.ajax({
 			type: "POST",
 			url: "/HTML/putCardOnTable",
