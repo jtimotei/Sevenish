@@ -4,7 +4,7 @@ var connection;
 
 function getWinrate(games, wins) {
     if(games==0) return 0;
-    return (wins*100)/games;
+    return Math.floor((wins*100)/games);
 }
 
 router.get("/getInfo", function(req, res) {
@@ -28,7 +28,7 @@ router.get("/getInfo", function(req, res) {
                 rank1v1: rows[0].rank1v1,
                 rank2v2: rows[0].rank2v2,
                 points1v1: rows[0].points1v1,
-                points2v2: rows[0].points2v2,
+                points2v2: rows[0].points2v2
             });
         }
     });

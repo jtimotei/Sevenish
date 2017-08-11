@@ -1,42 +1,49 @@
 // the variable that stores all the information regarding the game
 var game;
 
+// the variable that stores all messages
+var messages = [];
+
 // the number of cards in hand -> useful for determining the layout of the cards
 var nrOfCardsInHand;
 
 // how the 'own cards' will be displayed
 const cardPositions = 
-	[[{rotationAngle:0, top:20, left:0}],[{rotationAngle:-10, top:20, left:40}, {rotationAngle:10,top:20,left:-40}],
-	[{rotationAngle:-20,top:40, left:60}, {rotationAngle:0,top:20, left:0}, {rotationAngle:20,top:40, left:-60}],
-	[{rotationAngle:-30,top:70, left:110}, {rotationAngle:-10,top:20,left:40}, 
-	{rotationAngle:10,top:20,left:-40}, {rotationAngle:30,top:70, left:-110}]];
-
-// how the messages will be displayed depending on sender
-const messagePositions = [{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
-						{message:{top: 135, left: 180}, circle1:{top: 120, left: 165}, circle2:{top: 105, left: 150}},
-						{message:{top: 145, left: -200}, circle1:{top: 120, left: 30}, circle2:{top: 105, left: 45}}];
+	[[{rotationAngle:0, top:5, left:0}],[{rotationAngle:-10, top:6, left:4}, {rotationAngle:10,top:6,left:-4}],
+	[{rotationAngle:-20,top:7, left:7}, {rotationAngle:0,top:5, left:0}, {rotationAngle:20,top:7, left:-7}],
+	[{rotationAngle:-30,top:9, left:9}, {rotationAngle:-10,top:5,left:3}, 
+	{rotationAngle:10,top:5,left:-3}, {rotationAngle:30,top:9, left:-9}]];
 
 // the variable stores the rotation angle of the cards on the table  
 var rotationTableCards = [];
 
 // this array keeps track of whether there is or not a message displayed at a player
-var messageDisplayed = [0, 0, 0]; 
+var messageDisplayed = [0, 0, 0, 0]; 
 
 var pollInterval;
-
+var turnTimeout;
 // the main function
 // initializes the game and calls the poll function
 function main() {
 	var turn=0;
+
 	$.ajax({
 		type: "POST",
 		url: "/HTML/getGameState",
 		data: {gameId:window.location.search.substring(3)},
 		dataType: 'json',
 		complete: function(xhr) {
-			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied") window.location.pathname = "/HTML/not_found.html";
+			if(xhr.responseText == "Game not found" || xhr.responseText == "Access denied" || xhr.responseText=="Not authorized") window.location.pathname = "/HTML/not_found.html";
 			else {
 				game = xhr.responseJSON;
+				if(game.players.length == 2) {
+					$("div#player_3 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+				}
+				else {
+					$("div#player_3 div.userDivs").css({"background-color":"rgb(0, 51, 102)", "display":"block"});
+					$("div#player_2 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+					$("div#player_4 div.userDivs").css({"background-color":"rgb(128, 0, 0)", "display":"block"});
+				}
 				updateOtherPlayers();
 				updateOwnCards();
 				updateTableCards();
@@ -46,33 +53,30 @@ function main() {
 			}
 		}
 	});
+
 }
 
-window.adaptMessagePositions = function() {
-	for(var player=2; player<=4; player++) {
-		if(game.players.length != 2 || player == 3) { 
-			if(messageDisplayed[player-2]) {
-				var playerDiv = document.querySelector("#player_"+player+" div.userDivs").getBoundingClientRect();		
-				var textbox = $("#textbox_"+(player));
-				var circle1 = $("#circle1_"+(player));
-				var circle2 = $("#circle2_"+(player));
-
-				textbox.css({"top":playerDiv.top + messagePositions[player-2].message.top, 
-					"left":playerDiv.left + messagePositions[player-2].message.left});
-				circle1.css({"top":playerDiv.top + messagePositions[player-2].circle1.top, 
-					"left":playerDiv.left + messagePositions[player-2].circle1.left});
-				circle2.css({"top":playerDiv.top + messagePositions[player-2].circle2.top, 
-					"left":playerDiv.left + messagePositions[player-2].circle2.left});
-			}
+// prints the messages in the history div
+function printToHistory() {
+	for(var j=0; j<messages.length; j++) {
+		var mesaj; // romanian for message -> ran out of ideas for names 
+		var date = new Date(messages[j].date);
+		if(messages[j].sender === game.you) {
+			var message='['+date.getHours()+':'+date.getMinutes()+'] '+ messages[j].message;
+			mesaj = $("<div class='ownMessage'>").text(message);
 		}
+		else {
+			var message='['+date.getHours()+':'+date.getMinutes()+'] '+game.players[messages[j].sender].username+': '+ messages[j].message;
+			mesaj = $("<div class='message'>").text(message);
+		}
+		$("div#chat div#history").append(mesaj);
 	}
-}
-
-window.adapt = function() {
-	adaptMessagePositions();
+	messages=[];	
 }
 
 function displayMessages() {
+	messages = messages.concat(game.inbox);
+	printToHistory();
 	var i=0;
 	if(game.inbox.length>=3) i=game.inbox.length-3;
 	for(;i<game.inbox.length; i++) {
@@ -84,41 +88,32 @@ function displayMessages() {
 
 // the function that prints the messages send by the players
 function printMessage(text, playerIndex) {
-	var player = game.players.length == 2? 1:(4+(playerIndex-game.you))%4-1;
+	var player;
+	if(game.players.length == 2 && playerIndex == game.you) player = 0;
+	else if(game.players.length == 2) player=2;
+	else player = (4+(playerIndex-game.you))%4;
+
 	var textbox;
 	var circle1;
 	var circle2; 
 
 	if(messageDisplayed[player]==0) { 
-		var playerDiv = document.querySelector("#player_"+(player+2)+" div.userDivs").getBoundingClientRect();
 
-		textbox = $("<div>").attr({"class":"textbox", "id":"textbox_"+(player+2)});
-		circle1 = $("<div>").attr({"class": "circle circle1", "id":"circle1_"+(player+2)});
-		circle2 = $("<div>").attr({"class": "circle circle2", "id":"circle2_"+(player+2)});
-		textbox.css({"top":(playerDiv.top + messagePositions[player].message.top), 
-			"left":(playerDiv.left + messagePositions[player].message.left)}); 
-		circle1.css({"top":(playerDiv.top + messagePositions[player].circle1.top), 
-			"left":(playerDiv.left + messagePositions[player].circle1.left)});
-		circle2.css({"top":(playerDiv.top + messagePositions[player].circle2.top), 
-			"left":(playerDiv.left + messagePositions[player].circle2.left)});
+		textbox = $("div#textbox_"+(player+1));
+		circle1 = $("div#circle1_"+(player+1));
+		circle2 = $("div#circle2_"+(player+1));
 
 		var message = $("<p>").text(text);
 		textbox.prepend(message);
 
-		textbox.hide();
-		circle1.hide();
-		circle2.hide();
-		$("body").append(textbox);
-		$("body").append(circle1);
-		$("body").append(circle2);
 		textbox.fadeIn();
 		circle1.fadeIn();
 		circle2.fadeIn();
 	}
 	else {
-		textbox = $("#textbox_"+(player+2));
-		circle1 = $("#circle1_"+(player+2));
-		circle2 = $("#circle2_"+(player+2));
+		textbox = $("#textbox_"+(player+1));
+		circle1 = $("#circle1_"+(player+1));
+		circle2 = $("#circle2_"+(player+1));
 		var message = $("<p>").text(text);
 		if(messageDisplayed[player]>2) {
 			textbox.children().last().remove();
@@ -135,9 +130,9 @@ function printMessage(text, playerIndex) {
 		if(message.parent().length > 0) {
 			messageDisplayed[player]--;
 			if(messageDisplayed[player]==0) {
-				$(circle1).fadeOut("normal", function() { circle1.remove(); });
-				$(circle2).fadeOut("normal", function() { circle2.remove(); });
-				$(textbox).fadeOut("normal", function() { textbox.remove(); });
+				$(circle1).fadeOut("normal");
+				$(circle2).fadeOut("normal");
+				$(textbox).fadeOut("normal", function() { $(textbox).text("") });
 			} else{			
 				message.fadeOut();
 			}
@@ -159,28 +154,39 @@ function updateScore() {
 // this method is used to update the icon and username of the other players
 function updateOtherPlayers() {
 	var i=game.you;
-	$("#ownInfo").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
-	$("#ownInfo").append("<p>"+game.players[i].username+"</p>");
+	$("#ownInfo").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/></div>");
+	$("#ownInfo").append("<div id='username'>"+game.players[i].username+"</div>");
 
 	if(game.players.length == 2) {
 		var opponent = game.you == 0? 1:0;
-		$("#player_3 div.userDivs").append("<img src='../Resources/Icons/"+game.players[opponent].icon+".png' class='icons'/>");
-		$("#player_3 div.userDivs").append("<p>"+game.players[opponent].username+"</p>");
+		$("#player_3 div.userDivs").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[opponent].icon+".png' class='icons'/></div");
+		$("#player_3 div.userDivs").append("<div id='username'>"+game.players[opponent].username+"</div>");
 	}
 	else {
 		for(var j=2; j<=4; j++) {
 			i=(i+1)%4;
-			$("#player_"+j+" div.userDivs").append("<img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/>");
-			$("#player_"+j+" div.userDivs").append("<p>"+game.players[i].username+"</p>");
+			$("#player_"+j+" div.userDivs").append("<div id='wrapper'><img src='../Resources/Icons/"+game.players[i].icon+".png' class='icons'/></div>");
+			$("#player_"+j+" div.userDivs").append("<div id='username'>"+game.players[i].username+"</div>");
 		}
 	}
 }
 
-function updateTurnIcon() {
+function timeoutAnimation() {
+	var timeoutWrapper = $("<div id='timeoutWrapper'>").html("<div id='timeout'></div>");
+	$("body").append(timeoutWrapper);
+}
+
+function updateTurn() {
 	$("img#turnIcon").remove();
-	if(game.turn == game.you) $("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+	$("div#timeout").remove();
+	if(game.turn == game.you) {
+		$("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+		turnTimeout = setTimeout(timeoutAnimation, 11500);
+	}
 	else if(game.players.length == 2) $("#player_3 div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
+
+
 }
 
 function endGame() {
@@ -198,34 +204,39 @@ function endGame() {
 
 function poll() {
 	pollInterval = setInterval(function() {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/getGameState",
-			data: {gameId:window.location.search.substring(3)},
-			dataType: 'json',
-			complete: function(xhr) {
-				if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
-					var lengthOwnCards = game.cards.length;
-					var lengthTableCards = game.onTable.length;
-					game = xhr.responseJSON;
+		getGameState();
+	}, 1000);
+}
 
-					if(game.result != undefined) {
-						updateTableCards();
-						setTimeout(endGame, 2000);
-						clearInterval(pollInterval);
-						return;
-					}
+function getGameState() {
+	$.ajax({
+		type: "POST",
+		url: "/HTML/getGameState",
+		data: {gameId:window.location.search.substring(3)},
+		dataType: 'json',
+		complete: function(xhr) {
+			if(xhr.responseText != "Not authorized" && xhr.responseText != "Game not found") {		
+				var lengthOwnCards = game.cards.length;
+				var lengthTableCards = game.onTable.length;
+				game = xhr.responseJSON;
 
-					if(lengthOwnCards != game.cards.length) updateOwnCards();
-					if(lengthTableCards != game.onTable.length) updateTableCards();
-					if(game.inbox.length !=0) displayMessages();
+				if(game.result != undefined) {
+					updateOwnCards();
+					updateTableCards();
+					setTimeout(endGame, 2000);
+					clearInterval(pollInterval);
+					return;
 				}
-				else {
-					window.location.pathname = "/HTML/not_found.html";
-				}
+
+				if(lengthOwnCards != game.cards.length) updateOwnCards();
+				if(lengthTableCards != game.onTable.length) updateTableCards();
+				if(game.inbox.length !=0) displayMessages();
 			}
-		})
-	}, 1500);
+			else {
+				window.location.pathname = "/HTML/not_found.html";
+			}
+		}
+	})
 }
 
 function updateOwnCards() {
@@ -242,8 +253,8 @@ function updateOwnCards() {
 				draggable:false
 			});
 			img.css("transform", "rotate("+cardPositions[nrOfCardsInHand-1][i].rotationAngle+"deg)");
-			img.css("top", cardPositions[nrOfCardsInHand-1][i].top);
-			img.css("left", cardPositions[nrOfCardsInHand-1][i].left);
+			img.css("top", cardPositions[nrOfCardsInHand-1][i].top+"vmin");
+			img.css("left", cardPositions[nrOfCardsInHand-1][i].left+"vmin");
 			$("#player_1").append(img);
 		}
 	}
@@ -273,15 +284,17 @@ window.document.zoomInCards = function() {
 
 window.document.changeIcon = function() {
 	var img = $("#giveCards");
-	if(img.attr("src") == "../Resources/Icons/giveCards.png") img.attr("src", "../Resources/Icons/giveCardsHover.png");
-	else img.attr("src", "../Resources/Icons/giveCards.png");
+	if(img.attr("src") == "../Resources/Icons/hand.png") img.attr("src", "../Resources/Icons/handHover.png");
+	else img.attr("src", "../Resources/Icons/hand.png");
 }
+
+
 
 function updateTableCards() {
 	$("#table").empty();
 
 	updateScore();
-	updateTurnIcon();
+	updateTurn();
 	
 	window.document.zoomOutCards();
 
@@ -301,29 +314,30 @@ function updateTableCards() {
 	
 
 	if(game.turn == game.you && game.onTable.length%game.players.length==0 && game.result==undefined) {
-		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/giveCards.png");
+		var giveCardsIcon = $("<img>").attr("src", "../Resources/Icons/hand.png");
 		giveCardsIcon.attr({id:"giveCards", onclick:"emptyTable()", onmouseenter:"changeIcon()", onmouseleave:"changeIcon()"});
-		$("#player_1").append(giveCardsIcon);
+		$("div#table").append(giveCardsIcon);
 	}
 }
 
 window.document.pullCard = function(card) {
 	var index = card.getAttribute("data-nr");
-	var topOffset = cardPositions[nrOfCardsInHand-1][index].top-50;
+	var topOffset = (cardPositions[nrOfCardsInHand-1][index].top-6) +"vmin";
 	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
-	leftOffset = leftOffset - (0.4 *leftOffset);
+	leftOffset = (leftOffset - (0.4 *leftOffset)) +"vmin";
 	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeOutExpo");
 }
 
 window.document.putCardBack = function(card) {	
 	var index = card.getAttribute("data-nr");
-	var topOffset = cardPositions[nrOfCardsInHand-1][index].top;
-	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left;
+	var topOffset = cardPositions[nrOfCardsInHand-1][index].top + "vmin";
+	var leftOffset = cardPositions[nrOfCardsInHand-1][index].left+"vmin";
 	$(card).stop().animate({top:topOffset, left:leftOffset}, "easeInExpo");
 }
 
 window.document.selectCard = function(c) {
 	if(game.turn == game.you) {
+		clearTimeout(turnTimeout);
 		$.ajax({
 			type: "POST",
 			url: "/HTML/putCardOnTable",
@@ -341,94 +355,198 @@ window.document.selectCard = function(c) {
 }
 
 window.document.emptyTable = function() {
-		$.ajax({
-			type: "POST",
-			url: "/HTML/putCardOnTable",
-			data: {gameId:window.location.search.substring(3), card:-1},
-			dataType: 'json',
-			complete: function(xhr) {
-				if(xhr.responseText != "Invalid action") {
-					game = xhr.responseJSON;
-					updateOwnCards();
-					updateTableCards();
-				}
+
+	$.ajax({
+		type: "POST",
+		url: "/HTML/putCardOnTable",
+		data: {gameId:window.location.search.substring(3), card:-1},
+		dataType: 'json',
+		complete: function(xhr) {
+			if(xhr.responseText != "Invalid action") {
+				game = xhr.responseJSON;
+				updateOwnCards();
+				updateTableCards();
 			}
-		});
-	}
+		}
+	});
+}
 
-var inputFocused;
-
-window.document.removeInput = function() {
-	var input = $("div#chat input");
-	var inputVal = input.val();
-	var remove = true;
-	for(var i=0; i<inputVal.length;i++) {
-		if(inputVal[i] != ' ') {
-			remove = false;
-			break;
+function isEmpty(text) {
+	for(var i=0; i<text.length;i++) {
+		if(text != ' ') {
+			return false;
 		}
 	}
+	return true;
+}
 
-	if(remove) {
-		input.fadeOut(100, function() {input.val("");});
-		$("div#chatButton img").attr("src","../Resources/Other/chat.png");
-	}
-	else {
-		inputFocused = false;
+var historyShown = false;
+var inputFocused = false;
+var inputShown = false;
+
+$("div#chat input").on("focus", function() {
+	inputFocused = true;
+	$("div#chatButton img").attr("src","../Resources/Other/send.png");
+})
+
+$("div#chat input").on("focusout", function() {
+	inputFocused = false;
+	$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+	if(isEmpty($("div#chat input").val()) && !historyShown) chatSlide6();
+})
+
+var animationInProgress = false;
+
+// both slide in
+function chatSlide1() {
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = true;
+		inputShown = true;
+		$("div#chat").animate({"right": "0px"}, 150, function() {animationInProgress=false});
 	}
 }
 
-$("div#chatButton").on("click", function() {
-	var blackScreen = $("div.blackScreen");
-	if(blackScreen.parent().length==0) {
-		var input = $("div#chat input");
-		var inputVal = input.val();
-		if(input.css("display") == "none"){
-			input.fadeIn(100);
-			input.focus();
-			inputFocused = true;
-			$("div#chatButton img").attr("src","../Resources/Other/send.png");
-		}
+// both slide out
+function chatSlide2() {
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = false;
+		inputShown = false;
+		$("div#chat").animate({"right": "-30%"}, 150, function() {animationInProgress=false});
+	}
+}
+
+// only history slide out
+function chatSlide3() {	
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown = false;
+		inputShown = true;
+		$("div#chat div#history").animate({"left": "100%"},150, function() {animationInProgress=false});
+	}
+}
+
+//  only history slide in
+function chatSlide4() {
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown=true;
+		inputShown = true;
+		$("div#chat div#history").animate({"left": "0px"},150, function() {animationInProgress = false;});
+	}
+}
+
+// only input box slide in
+function chatSlide5() {
+	if(!animationInProgress) {
+		animationInProgress=true;
+		historyShown=false;
+		inputShown = true;
+		$("div#chat div#history").css({"left": "100%"});
+		$("div#chat").animate({"right": "0px"}, 150, function() {
+			$("div#chat input").focus();
+			animationInProgress=false;
+		});
+	}
+}
+
+// only input box slide out
+function chatSlide6() {
+	if(!animationInProgress) {
+		animationInProgress=true;
+		inputShown = false;
+		historyShown=false;
+		if(inputFocused) $("div#chat input").blur();	
+		$("div#chat").animate({"right": "-30%"}, 150, function() {
+			$("div#chat div#history").css({"left": "0px"});
+			animationInProgress=false;
+		});
+	}
+}
+
+var audio;
+function sendMessage() {
+	var input = $("div#chat input");
+	var inputVal = input.val();
+	if(inputVal === "/h" || inputVal === "/h " || inputVal === "/history" || inputVal === "/history ") {
+		if(historyShown) chatSlide3();
+		else chatSlide4();
+	}
+	else if(inputVal === '/c') {
+		if(historyShown) chatSlide6();
 		else {
-			input.fadeOut(100, function() {input.val("");});
-			inputFocused = false;
-			$.ajax({
-				type: "POST",
-				url: "/HTML/chat",
-				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
-				dataType: 'json'
-			});
-			$("div#chatButton img").attr("src","../Resources/Other/chat.png");
+			chatSlide2();
+			$("div#chat input").blur();
 		}
 	}
-})
+	else if(inputVal === "/never" || inputVal === "/never ") {
+		if(audio != undefined) audio.pause();
+		audio = new Audio('../Resources/Other/never.mp3');
+		audio.play();
+	}
+	else if(inputVal === "/stop") {
+		if(audio != undefined) audio.pause();
+	}
+	else if(!isEmpty(inputVal)) {
+		$.ajax({
+			type: "POST",
+			url: "/HTML/chat",
+			data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
+			dataType: 'json',
+			complete: function(xhr) {
+				if(xhr.responseJSON != undefined) game.inbox = xhr.responseJSON;
+				displayMessages();
+			}
+		});
+	}
+	input.val("");
+}
+
+function enterHandler() {
+	if(inputShown && !inputFocused) $("div#chat input").focus();
+	else if(inputShown && inputFocused) {
+		sendMessage();
+		if(!historyShown) chatSlide6();
+	}
+	else if(!inputShown) chatSlide5();
+
+}
 
 $("body").on("keypress", function(event) {
 	var blackScreen = $("div.blackScreen");
-	if(event.keyCode==13 && blackScreen.parent().length==0) {
-		var input = $("div#chat input");
-		var inputVal = input.val();
-		if(input.css("display") == "none"){
-			input.fadeIn(100);
-			input.focus();
-			$("div#chatButton img").attr("src","../Resources/Other/send.png");
-			inputFocused = true;
+	if(event.ctrlKey && event.keyCode==17 && blackScreen.parent().length==0) {
+		if(!historyShown && !inputShown) {
+			chatSlide1();
 		}
-		else if(!inputFocused) {
-			input.focus();
-			inputFocused = true;
+		else if(!historyShown && inputShown) {
+			chatSlide4()
+		}
+		else if(!inputFocused && isEmpty($("div#chat input").val())) {
+			chatSlide2();
 		}
 		else {
-			input.fadeOut(100, function() {input.val("");});
-			inputFocused = false;
-			$.ajax({
-				type: "POST",
-				url: "/HTML/chat",
-				data: {gameId:window.location.search.substring(3), date:new Date(), message: inputVal},
-				dataType: 'json'
-			});
+			chatSlide3();
 		}
 	}
+	else if(event.keyCode==13 && blackScreen.parent().length==0) enterHandler();
+})
+
+$("body").on("keyup", function() {
+	if(event.keyCode==27 && inputShown && inputFocused) $("div#chat input").blur();
+})
+
+$("div#chatButton").on("mousedown", function(event) {
+	if($("div#chatButton img").attr("src") == "../Resources/Other/chat.png" && !inputShown) {
+		chatSlide5();
+	}
+	else if($("div#chatButton img").attr("src") == "../Resources/Other/send.png") {
+		sendMessage();
+	}
+})
+
+$(window).blur(function() {
+	$("div#chat input").blur();
 })
 
 $(document).ready(main);

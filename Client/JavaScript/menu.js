@@ -98,9 +98,10 @@ function main() {
 	});
 
 
+
 	$("div#gameModes div").on("click", function() {
 		gameMode = this.getAttribute("data-gamemode")-0;
-		window.open("/HTML/waiting.html?gm="+gameMode);
+		window.location.href = "/HTML/waiting.html?gm="+gameMode;
 	})
 
 	$("div.bar").on("click", function() {

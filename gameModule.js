@@ -30,19 +30,47 @@ router.post("/HTML/chat", function(req, res){
      for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<g.players.length; i++) {
-                if(i!=j) {
-                    g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
-                }
+                g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
             }
+            res.send(g.players[j].inbox);
+            g.players[j].inbox = [];
+            return;
         }
     }
     res.send();
-
 });
+
+function takeOver(id) {
+    var g = games[id];
+    if(checkGameEnding(id, 0) == undefined) {
+        if(g.onTable.length > 0 && g.onTable.length%g.players.length==0) {
+                g.turn = g.holder;
+                addPoints(id);
+                distributeCards(g);
+                g.onTable = [];
+        }
+        else {
+            var index = g.turn;
+            var card = Math.floor(Math.random()*g.cards[index].length);
+            if(g.onTable.length > 0 && g.cards[index][card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][card].substring(0,1) == '7') g.holder=index;
+            g.onTable.push(g.cards[index][card]);
+            g.cards[index].splice(card,1);
+            g.turn = (g.turn+1)%g.players.length;
+        }
+        g.timeout = setTimeout(function() {
+            takeOver(id);
+        }, 20000);
+    }
+}
+
 
 router.post('/HTML/putCardOnTable', function(req, res) {
     var g = games[req.body.gameId];
     if(req.session.username == g.players[g.turn].username) {
+        clearTimeout(g.timeout);
+        g.timeout = setTimeout(function() {
+            takeOver(req.body.gameId);
+        }, 2000);
         index = g.turn;
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
             g.turn = g.holder;
@@ -79,7 +107,7 @@ function updateDB(g) {
 
     var query;
     for(var i=0;i<g.players.length; i++){
-        if(g.team1P == g.team2P) query=qeuryDraw;
+        if(g.team1P == g.team2P) query=queryDraw;
         else if((i%2 == 0 && g.team1P > g.team2P) || (i%2 == 1 && g.team1P < g.team2P)) query= queryWin;
         else query=queryLoss;
 
@@ -99,8 +127,8 @@ function addPoints(index) {
     }
 }
 
-function checkGameEnding(req, res, index) {
-    var g = games[req.body.gameId];
+function checkGameEnding(id, index) {
+    var g = games[id];
 
     if(g.nrDistributedCards == 32) {
         for(var k=0; k<g.players.length;k++) 
@@ -109,11 +137,11 @@ function checkGameEnding(req, res, index) {
 
         if(!g.end) {
             g.end = true;
-            addPoints(req.body.gameId);
+            addPoints(id);
             updateDB(g);            
         }
 
-        if(g.team1P == g.team2P) return "Draw"; 
+        if(g.team1P == g.team2P) return "Draw."; 
         else if((index%2 == 0 && g.team1P > g.team2P) || (index%2 == 1 && g.team1P < g.team2P)) return "You won!"; 
         else return "You lost!";
     }
@@ -126,7 +154,7 @@ router.post('/HTML/getGameState', function(req, res) {
     var g = games[req.body.gameId];
     for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox, result:checkGameEnding(req, res, j)});
+            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox, result:checkGameEnding(req.body.gameId, j)});
             g.players[j].inbox=[];
             return;
         }
@@ -161,9 +189,13 @@ function distributeCards(g) {
     g.nrDistributedCards = nr;
 }
 
-function initializeGame(g) {
+function initializeGame(id) {
+    var g = games[id];
     shuffleCards(g);
     distributeCards(g);
+    g.timeout = setTimeout(function() {
+        takeOver(id);
+    }, 20000)
 }
 
 function initialize(g, c) {

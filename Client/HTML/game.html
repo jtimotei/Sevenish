@@ -17,8 +17,21 @@
 	</script>
 	<link href="https://fonts.googleapis.com/css?family=Permanent+Marker|Acme|Caveat+Brush|Anton|Righteous" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="../CSS/game.css">
+	<link rel="stylesheet" type="text/css" href="../CSS/messages.css">
 </head>
-<body onresize ="adapt()">
+<body>
+<div class="textbox" id="textbox_1"></div>
+<div class="circle circle1" id="circle1_1"></div>
+<div class="circle circle2" id="circle2_1"></div>
+<div class="textbox" id="textbox_2"></div>
+<div class="circle circle1" id="circle1_2"></div>
+<div class="circle circle2" id="circle2_2"></div>
+<div class="textbox" id="textbox_3"></div>
+<div class="circle circle1" id="circle1_3"></div>
+<div class="circle circle2" id="circle2_3"></div>
+<div class="textbox" id="textbox_4"></div>
+<div class="circle circle1" id="circle1_4"></div>
+<div class="circle circle2" id="circle2_4"></div>
 <div id="score"></div>
 <div id="player_3">
 	<div class="userDivs">
@@ -35,7 +48,8 @@
 </div>
 <div id="player_1"></div>
 <div id="ownInfo"></div> 
-<input id="chat" onfocusout="removeInput()" maxlength="50"></input>
+<div id="chat"><div id="history"></div><input maxlength="50"></input></div>
+<div id="chatButton"><img src="../Resources/Other/chat.png"/></div>
 <script type="text/javascript" src="../JavaScript/game.js"></script>
 </body>
 </html>

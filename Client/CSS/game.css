@@ -5,6 +5,8 @@
 html{
 	height: 100%;
 	width: 100%;
+	overflow:hidden;
+	position: fixed;
 }
 body{
 	text-align: center;
@@ -13,10 +15,11 @@ body{
 	font-size:100%;
 	background-color: rgb(0, 26, 51);
 	overflow:hidden;
+	position: fixed;
 }
 
 div#score {
-	padding:10px;
+	padding:2vmin;
 	text-align: left;
 	color:grey;
 	font-family: "Righteous";
@@ -24,14 +27,55 @@ div#score {
 	top:0px;
 	left:0px;
 	margin:0px;
+	font-size:3vmin;
+
 }
+
+@keyframes timeoutAnim {
+	from {width: 100%;}
+	to {width: 1%;}
+}
+
+div#timeoutWrapper {
+	height: 7px;
+	position: absolute;
+	top:0px;
+	left:0px;
+	z-index:5;
+	width: 100%;
+	animation-name: timeoutAnim;
+	animation-duration: 7s;
+	animation-delay: 0.5s;
+	animation-timing-function: cubic-bezier(.57,.87,.46,.96) ;
+	animation-fill-mode: forwards;
+}
+
+
+@keyframes flash {
+	from {opacity: 0.5;}
+	to {opacity: 1; }
+}
+
+div#timeout{
+	background-color: white;
+	width: 100%;
+	height: 100%;
+	opacity: 0.5;
+	animation-name: flash;
+	animation-duration: 0.5s;
+	animation-direction: alternate;
+	animation-iteration-count: infinite;
+}
+
+
+
+
 
 #player_1 {
 	height:33%;
 	width: 100%;
 	position: relative;
 }
-
 
 #player_3 {
 	width: 100%;
@@ -61,7 +105,7 @@ div#score {
 }
 
 #table {
-	border-radius: 10px;
+	border-radius: 1vmin;
 	background-color: rgb(77, 77, 51);
 	-webkit-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.75);
@@ -71,34 +115,25 @@ div#score {
 	height: 45%;
 	overflow:hidden;
 	position:relative;
+	margin:auto;
 }
 
 div.userDivs {
-	padding:8px;
+	padding:1vmin;
 	position: relative;
-	border-radius: 10px;
+	border-radius: 2vmin;
 	top:50%;
 	left:50%;
 	transform: translate(-50%, -50%);
-	max-width: 200px;
+	width: 20vmin;
+	height: 18vmin;
+	max-height: 90%;
+	max-width: 90%;
 	color:lightgrey;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-}
-
-div.userDivs p{
-	margin-top:5px;
-	font-size:1.4em;
-	font-family:'Anton';
-}
-
-#player_2 div.userDivs, #player_4 div.userDivs {
-	background-color: rgb(128, 0, 0);
-} 
-
-#player_3 div.userDivs {
-	background-color: rgb(0, 51, 102);
+    display: none;
 }
 
 img.cards {
@@ -116,8 +151,14 @@ img.cards {
 	-webkit-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 19px -2px rgba(0,0,0,0.75);
+    max-height: 65%;
+    max-width: 65%;
+    width: auto;
+    height: auto;
+    display: block;
 
 }
+
 
 #blackScreen1 p {
 	position:relative;
@@ -127,7 +168,7 @@ img.cards {
 }
 
 #blackScreen1 p img {
-	z-index:6;
+	z-index:7;
 	margin:1.4vmin;
 	border-radius:5%;
 	width:200px;
@@ -139,41 +180,47 @@ img.cards {
 }
 
 #player_1 img.cards {
-	margin:0.4vmin;
+	top:50%;
+	transform: translateY(-50%);
 	position:relative;
-	max-width: 23%;
-	max-height: 120%;
+	max-width: 17%;
+	max-height: 80%;
+	width: auto;
+	height: auto;
 	z-index: 2;
-
 	-webkit-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 21px -1px rgba(0,0,0,0.75);
+    border:0.2vmin solid black;
 }
 
 #player_1 img.cards:hover {
-	margin:0.1vmin;
-	border:0.4vmin solid black;
 	cursor:pointer;
 }
 
+
 .icons{
-	max-width: 80%;
-	max-height: 90%;
-	height:128px;
-	width: 128px;
+	max-width: 100%;
+	height: 100%;
+	width: auto;
 }
 
 img#giveCards {
 	position:absolute;
-	max-height: 120px;
-	max-width: 120px;
-	bottom:30px;
-	right:30px;
-	border:4px solid rgba(0,0,0,0);
+	max-height: 8vmin;
+	max-width: 8vmin;
+	bottom:0.5vmin;
+	right: 0.5vmin;
+	z-index:5;
 }
 
 img#giveCards:hover {
 	cursor: pointer;
+}
+
+div#wrapper {
+	width: 100%;
+	height: 80%;
 }
 
 div#ownInfo {
@@ -181,106 +228,72 @@ div#ownInfo {
 	bottom:0px;
 	left:0px;
 	background-color: rgb(0, 51, 102);
-	padding:8px;
+	padding:1vmin;
 	z-index:1;
 	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    border-top-right-radius: 10px;
-	max-width: 200px;
-	width:20%;
+    border-top-right-radius: 2vmin;
+	width: 20vmin;
+	height: 20vmin;
 	color:lightgrey;
 }
 
-div#ownInfo p{
-	margin-top:5px;
-	font-size:1.4em;
+div#username{
+	width: 100%;
+	margin:0px;
 	font-family:'Anton';
+	height: 20%;
+	font-size:3vmin;
 }
 
 #turnIcon {
 	position:absolute;
 	left:70%;
 	top:2px;
-	width:30px;
-	height:30px;
-}
-
-div.circle {
-	z-index:3;
-	position: absolute;
-	background-color: rgba(256, 256, 256, 0.8);
-	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-}
-
-div.circle1 {
-	height:14px;
-	width:14px;
-	border-radius: 7px;
-}
-
-div.circle2 {
-	height:10px;
-	width:10px;
-	border-radius: 5px;
-}
-
-div.textbox {
-	z-index:3;
-	position:absolute;
-	color:black;
-	background-color: rgba(256, 256, 256, 0.8);
-	border-radius:10px;
-	width:25%;
-	max-width:300px;
-	text-align: left;
-	padding:10px;
-	font-size: 16px;
-	-webkit-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 8px 1px rgba(0,0,0,0.75);
-    overflow:hidden;
-}
-
-div.textbox:hover{
-	color:black;
-	background-color: white;
-}
-
-div.textbox p{
-	margin:10px 0px 10px 0px;
+	width:5vmin;
+	height:5vmin;
 }
 
 div#chat {
 	z-index:4;	
-	position:fixed;
+	position:absolute;
+	height: 100%;
+	width: 30%;
 	box-sizing: border-box;
-    top:10px;
-    right:10px;
-    height: 46px;
-    width: 400px;
+    top:0px;
+    right:-30%;
+}
+
+div#chat div#history {
+	position:relative;
+	height: calc(100% - 46px);
+	box-sizing: border-box;
+	background-color: rgba(0,0,0,0.5);
+	overflow-y:auto;
+	padding:5px;
 }
 
 div#chat input{
-	display:none;
 	font-family: Arial;
 	background-color:rgba(0,0,0,0.7);
-	color:rgba(256,256,256, 0.7);
+	color:rgba(256,256,256, 0.8);
 	font-size: 14px;
-	float:left;
-	width:354px; 
+	width: 100%;
+	height: 46px;
 	font-weight: bold;
-	height: 100%;
-    padding: 5px 10px;
+    padding: 4px 50px 4px 4px;
     border: 3px solid rgba(0,0,0,0);
     box-sizing: border-box;
 }
 
 div#chatButton {
+	z-index: 5;
+	position: absolute;
+	bottom:0px;
+	right: 0px;
 	width: 46px;
-	height: 100%;
+	height: 46px;
 	float: right;
 	box-sizing: border-box;
 	padding:0.2vmin;
@@ -313,11 +326,11 @@ div.blackScreen {
 	background-color: rgba(0,0,0,0.8);
 	width: 100%;
 	height:100%;
-	z-index:5;
+	z-index:6;
 }
 
 div#blackScreen1 {
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
 	padding-top:20px;
 	cursor:zoom-out;
@@ -366,4 +379,36 @@ div#endGameMessage div:active {
 	transition:0.3s;
     border: 2px solid rgb(0, 153, 255);
 	background-color: rgb(0, 26, 51);
+}
+
+div.ownMessage {
+	float:right;
+	display: inline-block;
+	background-color: lightblue;
+	text-align:left;
+	width:70%;
+	margin-bottom:5px;
+	margin-left: 3px;
+	border-radius: 5px;
+	padding:4px;
+	-webkit-box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    overflow: hidden;
+}
+
+div.message {
+	float:left;
+	display: inline-block;
+	text-align:left;
+	background-color: white;
+	width:70%;
+	margin-bottom:5px;
+	margin-left: 3px;
+	border-radius: 5px;
+	padding:4px;
+	-webkit-box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 11px 2px rgba(0,0,0,0.75);
+    overflow:hidden;
 }
