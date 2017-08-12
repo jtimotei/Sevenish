@@ -46,6 +46,7 @@ function main() {
 				}
 				updateOtherPlayers();
 				updateOwnCards();
+				updateTurn();
 				updateTableCards();
 				updateScore();
 				displayMessages();
@@ -71,6 +72,11 @@ function printToHistory() {
 		}
 		$("div#chat div#history").append(mesaj);
 	}
+
+	if(historyShown) {
+		document.getElementById("history").lastChild.scrollIntoView(false);
+	}
+
 	messages=[];	
 }
 
@@ -86,6 +92,8 @@ function displayMessages() {
 	}
 }
 
+fadeOutInProgress= false;
+
 // the function that prints the messages send by the players
 function printMessage(text, playerIndex) {
 	var player;
@@ -97,7 +105,7 @@ function printMessage(text, playerIndex) {
 	var circle1;
 	var circle2; 
 
-	if(messageDisplayed[player]==0) { 
+	if(messageDisplayed[player]==0 && !fadeOutInProgress) { 
 
 		textbox = $("div#textbox_"+(player+1));
 		circle1 = $("div#circle1_"+(player+1));
@@ -110,15 +118,26 @@ function printMessage(text, playerIndex) {
 		circle1.fadeIn();
 		circle2.fadeIn();
 	}
+	else if(messageDisplayed[player]==0) {
+		textbox = $("div#textbox_"+(player+1));
+		circle1 = $("div#circle1_"+(player+1));
+		circle2 = $("div#circle2_"+(player+1));
+		textbox.stop(true, false);
+		circle1.stop(true, false);
+		circle2.stop(true, false);
+		fadeOutInProgress = false;
+		$(textbox).text("");
+		var message = $("<p>").text(text);
+		textbox.prepend(message);
+		textbox.fadeIn();
+		circle1.fadeIn();
+		circle2.fadeIn();
+	}
 	else {
 		textbox = $("#textbox_"+(player+1));
 		circle1 = $("#circle1_"+(player+1));
 		circle2 = $("#circle2_"+(player+1));
 		var message = $("<p>").text(text);
-		if(messageDisplayed[player]>2) {
-			textbox.children().last().remove();
-			messageDisplayed[player]--;
-		}
 		message.hide();
 		textbox.prepend(message);
 		message.fadeIn();
@@ -130,14 +149,18 @@ function printMessage(text, playerIndex) {
 		if(message.parent().length > 0) {
 			messageDisplayed[player]--;
 			if(messageDisplayed[player]==0) {
+				fadeOutInProgress = true;
 				$(circle1).fadeOut("normal");
 				$(circle2).fadeOut("normal");
-				$(textbox).fadeOut("normal", function() { $(textbox).text("") });
+				$(textbox).fadeOut("normal", function() { 
+					$(textbox).text("");
+					fadeOutInProgress=false;
+				});
 			} else{			
 				message.fadeOut();
 			}
 		}
-	}, 5500);
+	}, 6500);
 }
 
 // this method updates the score seen in the upper-left corner of the window
@@ -171,17 +194,34 @@ function updateOtherPlayers() {
 	}
 }
 
-function timeoutAnimation() {
-	var timeoutWrapper = $("<div id='timeoutWrapper'>").html("<div id='timeout'></div>");
-	$("body").append(timeoutWrapper);
+function timeoutAnimation(duration, delay) {
+	if(game.turn == game.you) {
+		var timeoutWrapper = document.createElement("div");
+		timeoutWrapper.id = "timeoutWrapper";
+		timeoutWrapper.innerHTML = "<div id='timeout'></div>";
+		timeoutWrapper.style.animationDuration=duration;
+		timeoutWrapper.style.animationDelay=delay;
+		document.querySelector("body").appendChild(timeoutWrapper);
+		//$("div#timeoutWrapper").css({"display":"block", "animation-":"25%"});
+	}
 }
 
 function updateTurn() {
 	$("img#turnIcon").remove();
-	$("div#timeout").remove();
+	$("div#timeoutWrapper").remove();
 	if(game.turn == game.you) {
 		$("#ownInfo").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
-		turnTimeout = setTimeout(timeoutAnimation, 11500);
+		var date = new Date().getTime();
+		var remainingSeconds = 20000 - (date - game.timeoutBegin) - 8000;
+		if(remainingSeconds>0) turnTimeout = setTimeout( function() { timeoutAnimation("7.5s", "0.5s") }, remainingSeconds);
+		else{
+			remainingSeconds += 8000;
+			if(remainingSeconds > 1000) {
+				var seconds = (remainingSeconds/1000)+'s';
+				timeoutAnimation(seconds, "0s");
+			}
+		}
+
 	}
 	else if(game.players.length == 2) $("#player_3 div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
 	else $("#player_"+((4+(game.turn-game.you))%4+1)+" div.userDivs").append("<img src='../Resources/Icons/loading2.gif' id='turnIcon'/>");
@@ -229,7 +269,10 @@ function getGameState() {
 				}
 
 				if(lengthOwnCards != game.cards.length) updateOwnCards();
-				if(lengthTableCards != game.onTable.length) updateTableCards();
+				if(lengthTableCards != game.onTable.length) {
+					updateTurn();
+					updateTableCards();
+				}
 				if(game.inbox.length !=0) displayMessages();
 			}
 			else {
@@ -294,7 +337,6 @@ function updateTableCards() {
 	$("#table").empty();
 
 	updateScore();
-	updateTurn();
 	
 	window.document.zoomOutCards();
 
@@ -347,6 +389,7 @@ window.document.selectCard = function(c) {
 				if(xhr.responseText != "Invalid action") {
 					game = xhr.responseJSON;
 					updateOwnCards();
+					updateTurn();
 					updateTableCards();
 				}
 			}
@@ -355,7 +398,7 @@ window.document.selectCard = function(c) {
 }
 
 window.document.emptyTable = function() {
-
+	clearTimeout(turnTimeout);
 	$.ajax({
 		type: "POST",
 		url: "/HTML/putCardOnTable",
@@ -365,6 +408,7 @@ window.document.emptyTable = function() {
 			if(xhr.responseText != "Invalid action") {
 				game = xhr.responseJSON;
 				updateOwnCards();
+				updateTurn();
 				updateTableCards();
 			}
 		}
@@ -403,7 +447,11 @@ function chatSlide1() {
 		animationInProgress=true;
 		historyShown = true;
 		inputShown = true;
-		$("div#chat").animate({"right": "0px"}, 150, function() {animationInProgress=false});
+		$("div#chat").animate({"right": "0px"}, 150, function() {
+			animationInProgress=false;
+			var child = document.getElementById("history").lastChild
+			if(child != null) child.scrollIntoView(false);
+		});
 	}
 }
 
@@ -433,7 +481,11 @@ function chatSlide4() {
 		animationInProgress=true;
 		historyShown=true;
 		inputShown = true;
-		$("div#chat div#history").animate({"left": "0px"},150, function() {animationInProgress = false;});
+		$("div#chat div#history").animate({"left": "0px"},150, function() {
+			animationInProgress = false;
+			var child = document.getElementById("history").lastChild
+			if(child != null) child.scrollIntoView(false);
+		});
 	}
 }
 
@@ -444,7 +496,7 @@ function chatSlide5() {
 		historyShown=false;
 		inputShown = true;
 		$("div#chat div#history").css({"left": "100%"});
-		$("div#chat").animate({"right": "0px"}, 150, function() {
+		$("div#chat").animate({"right": "0px"}, 10, function() {
 			$("div#chat input").focus();
 			animationInProgress=false;
 		});
@@ -534,6 +586,10 @@ $("body").on("keypress", function(event) {
 
 $("body").on("keyup", function() {
 	if(event.keyCode==27 && inputShown && inputFocused) $("div#chat input").blur();
+})
+
+$("body").on("keydown", function(event) {
+	if(event.keyCode==9) event.preventDefault();
 })
 
 $("div#chatButton").on("mousedown", function(event) {

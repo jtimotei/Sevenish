@@ -93,11 +93,13 @@ div#contentProfile {
 
 
 .style-1::-webkit-scrollbar{
+	padding:2vmin;
 	width: 1vmin;
 	background-color: rgba(0,0,0,0);
 }
 
 .style-1::-webkit-scrollbar-thumb{
+	height: 50%;
 	border-radius: 1vmin;
 	background-color: grey;
 }

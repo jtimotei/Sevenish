@@ -4,7 +4,7 @@ var table1, table2;
 function adaptContent() {
 	var bar = document.querySelector("div.bar:nth-of-type(1)").getBoundingClientRect();
 	var t = bar.height;
-	var h = window.innerHeight - bar.height + 1;
+	var h = 0.97*window.innerHeight - bar.height + 1;
 	$("div#content").css({top:t, height:h});
 	$("div#navbar").css({height:bar.height});
 }
@@ -145,12 +145,9 @@ function main() {
 		$(this).addClass("selectedPMode");
 	});
 
-	$(window).on("resize", function() {
-		adaptContent();
+	$("body").on("keydown", function(event) {
+		if(event.keyCode==9) event.preventDefault();
 	})
-
-	adaptContent();
-
 }
 
 $(window).on("load", main);

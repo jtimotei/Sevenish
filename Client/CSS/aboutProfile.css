@@ -1,0 +1,16 @@
+div#contentAbout {
+	height: 100%;
+	width: 80%;
+	margin:auto;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding:5vmin 1vmin 5vmin 1vmin;
+	overflow: auto;
+	font-size:1.3em;
+}
+
+div#content p#titles {
+	font-family:"Righteous";
+	font-weight: bold;
+	font-size:2.6em;
+}

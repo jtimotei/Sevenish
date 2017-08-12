@@ -33,7 +33,7 @@ div#score {
 
 @keyframes timeoutAnim {
 	from {width: 100%;}
-	to {width: 1%;}
+	to {width: 0%;}
 }
 
 div#timeoutWrapper {
@@ -44,8 +44,6 @@ div#timeoutWrapper {
 	z-index:5;
 	width: 100%;
 	animation-name: timeoutAnim;
-	animation-duration: 7s;
-	animation-delay: 0.5s;
 	animation-timing-function: cubic-bezier(.57,.87,.46,.96) ;
 	animation-fill-mode: forwards;
 }
