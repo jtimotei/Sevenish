@@ -57,9 +57,9 @@ function takeOver(id) {
             g.cards[index].splice(card,1);
             g.turn = (g.turn+1)%g.players.length;
         }
-        /*g.timeout = setTimeout(function() {
+        g.timeout = setTimeout(function() {
             takeOver(id);
-        }, 20000);*/
+        }, 20000);
         g.timeoutBegin = new Date().getTime();
     }
 }
@@ -69,9 +69,9 @@ router.post('/HTML/putCardOnTable', function(req, res) {
     var g = games[req.body.gameId];
     if(req.session.username == g.players[g.turn].username) {
         clearTimeout(g.timeout);
-        /*g.timeout = setTimeout(function() {
+        g.timeout = setTimeout(function() {
             takeOver(req.body.gameId);
-        }, 20000);*/
+        }, 20000);
         g.timeoutBegin = new Date().getTime();
         index = g.turn;
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
@@ -195,9 +195,9 @@ function initializeGame(id) {
     var g = games[id];
     shuffleCards(g);
     distributeCards(g);
-    /*g.timeout = setTimeout(function() {
+    g.timeout = setTimeout(function() {
         takeOver(id);
-    }, 20000);*/
+    }, 20000);
     g.timeoutBegin = new Date().getTime();
 }
 

@@ -132,6 +132,19 @@ app.get("/HTML/logOut", function(req, res){
     
 });
 
+const icons = ["baby", "nurse", "teacher", "professor", "sad", "spy", "bear"];
+app.post("/changeIcon", function(req, res) {
+    if(req.session.username != undefined && req.body.nr >=0 && req.body.nr <= 6) {
+        connection.query("UPDATE Users SET icon=? WHERE username=?;", [icons[req.body.nr], req.session.username], function(error) {
+            if(error) console.log(error.message);
+            else {
+                req.session.icon = icons[req.body.nr];
+                res.send("Success");
+            }
+        });
+    }
+});
+
 app.use(queueModule.router);
 app.use(profileModule.router);
 profileModule.initializeConnection(connection);

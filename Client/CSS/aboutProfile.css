@@ -9,7 +9,7 @@ div#contentAbout {
 	font-size:1.3em;
 }
 
-div#content p#titles {
+div#content p.titles {
 	font-family:"Righteous";
 	font-weight: bold;
 	font-size:2.6em;

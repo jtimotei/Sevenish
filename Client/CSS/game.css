@@ -209,7 +209,7 @@ img#giveCards {
 	max-width: 8vmin;
 	bottom:0.5vmin;
 	right: 0.5vmin;
-	z-index:5;
+	z-index:3;
 }
 
 img#giveCards:hover {
