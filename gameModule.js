@@ -60,6 +60,7 @@ function takeOver(id) {
         g.timeout = setTimeout(function() {
             takeOver(id);
         }, 20000);
+        g.timeoutBegin = new Date().getTime();
     }
 }
 
@@ -70,7 +71,8 @@ router.post('/HTML/putCardOnTable', function(req, res) {
         clearTimeout(g.timeout);
         g.timeout = setTimeout(function() {
             takeOver(req.body.gameId);
-        }, 2000);
+        }, 20000);
+        g.timeoutBegin = new Date().getTime();
         index = g.turn;
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
             g.turn = g.holder;
@@ -154,7 +156,7 @@ router.post('/HTML/getGameState', function(req, res) {
     var g = games[req.body.gameId];
     for(var j=0;j<g.players.length;j++) {
         if(req.session.username == g.players[j].username) {
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox, result:checkGameEnding(req.body.gameId, j)});
+            res.send({result:checkGameEnding(req.body.gameId, j), onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[j], team1P: g.team1P, team2P: g.team2P, you:j, inbox:g.players[j].inbox, timeoutBegin:g.timeoutBegin});
             g.players[j].inbox=[];
             return;
         }
@@ -195,7 +197,8 @@ function initializeGame(id) {
     distributeCards(g);
     g.timeout = setTimeout(function() {
         takeOver(id);
-    }, 20000)
+    }, 20000);
+    g.timeoutBegin = new Date().getTime();
 }
 
 function initialize(g, c) {

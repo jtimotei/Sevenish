@@ -4,7 +4,7 @@ var table1, table2;
 function adaptContent() {
 	var bar = document.querySelector("div.bar:nth-of-type(1)").getBoundingClientRect();
 	var t = bar.height;
-	var h = window.innerHeight - bar.height + 1;
+	var h = 0.97*window.innerHeight - bar.height + 1;
 	$("div#content").css({top:t, height:h});
 	$("div#navbar").css({height:bar.height});
 }
@@ -72,6 +72,16 @@ function updateProfile2() {
 	$("#contentProfile").append(createTableRankings(table2));
 }
 
+const icons = ["baby", "nurse", "teacher", "professor", "sad", "spy", "bear"];
+function updateSettings() {
+	for(var i=0; i<icons.length; i++) {
+		if(acc.icon == icons[i]) {
+			$("div.iconDiv:nth-of-type("+(i+1)+")").attr("id", "selectedIconDiv");
+			break;
+		}
+	}
+}
+
 function main() {
 	$.ajax({
 		type: "GET",
@@ -79,7 +89,8 @@ function main() {
 		dataType: 'json',
 		complete: function(xhr) {
 			acc = xhr.responseJSON;
-			updateProfile1();			
+			updateProfile1();
+			updateSettings();			
 		}
 	});
 
@@ -145,12 +156,38 @@ function main() {
 		$(this).addClass("selectedPMode");
 	});
 
-	$(window).on("resize", function() {
-		adaptContent();
+	$("body").on("keydown", function(event) {
+		if(event.keyCode==9) event.preventDefault();
 	})
 
-	adaptContent();
+	$("div.iconDiv").on("click", function() {
+		$("#selectedIconDiv").removeAttr("id");
+		$(this).attr("id", "selectedIconDiv");
+		var nrIcon = this.firstChild.getAttribute("data-nr");
+		$.ajax({
+			type: "POST",
+			url: "/changeIcon",
+			data: {nr: nrIcon},
+			dataType: 'json',
+			complete: function(xhr) {
+				if(xhr.responseText=="Success") {
+					$("div#iconDiv img").attr("src", "../Resources/Icons/"+icons[nrIcon]+".png");
+					acc.icon=icons[nrIcon];
+				}		
+			}
+		});
+	})
 
+	$("div#logOut").on("click", function() {
+		$.ajax({
+			type: "GET",
+			url: "/HTML/logOut",
+			dataType: 'json',
+			complete: function() {
+				window.location.pathname = "/HTML/signIn.html";
+			}
+		});
+	})
 }
 
 $(window).on("load", main);
