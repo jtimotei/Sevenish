@@ -4,6 +4,8 @@ const gameModule = require("./gameModule.js"),
 var router = new express.Router();
 var connection;
 
+var ai = require("./bot.js");
+
 var gameModes = [
     { playQueue:[], nrPlayers:2 },
     { playQueue:[], nrPlayers:4 }
@@ -22,10 +24,20 @@ function checkGameMode(req, res){
 } 
 
 router.post("/HTML/playQueue", function(req, res, next) {
-    if(checkGameMode(req, res)) return;
-
-    gameModes[req.body.gameMode].playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
-    res.send({message:"Success"});
+     if(req.body.gameMode == 2) {
+        var game = new Game([{username:req.session.username, icon:req.session.icon, inbox:[]}], gameNr);
+        var bot = new ai(game, "Robottas", game.players.length);
+        game.players.push(bot);
+        bot.greet();
+        games.push(game);
+        gameModule.initializeGame(games.length-1);
+        res.send({message:"Game found", id:game.id});
+    }   
+    else if(checkGameMode(req, res)) return;
+    else {
+        gameModes[req.body.gameMode].playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
+        res.send({message:"Success"});
+    }
 });
 
 router.post("/HTML/search", function(req, res) {
@@ -60,21 +72,23 @@ function removeFromPlayQueue(array, gameMode) {
     }
 }
 
+function Game(pls, gameNumber) {
+    this.players = pls;
+    this.id = gameNumber;
+    this.nrDistributedCards = 0;
+    this.cards = [[],[],[],[]];
+    this.turn = 0;
+    this.onTable = [];
+    this.holder = 0;
+    this.team1P = 0;
+    this.team2P = 0;
+    this.end = false;
+}
+
 function match(gameMode) {
     var gm = gameModes[gameMode];
     if(gm.playQueue.length >= gm.nrPlayers) {
-        var game = {
-            players:[],
-            id : gameNr,
-            nrDistributedCards:0,
-            cards : [[],[],[],[]],
-            turn:0,
-            onTable:[],
-            holder:0,
-            team1P:0,
-            team2P:0,
-            end:false
-        };
+        var game = new Game([], gameNr);
         var playersFound = 0;
         var indexes = []; 
         var invalidEntries = [];

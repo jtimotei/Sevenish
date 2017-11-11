@@ -1,6 +1,6 @@
 var express =require("express");
 var router = new express.Router();
-
+var ai = require("./bot.js");
 var games;
 
 var connection;
@@ -31,6 +31,7 @@ router.post("/HTML/chat", function(req, res){
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<g.players.length; i++) {
                 g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
+                if(g.players[i] instanceof ai) g.players[i].react();
             }
             res.send(g.players[j].inbox);
             g.players[j].inbox = [];
@@ -56,6 +57,10 @@ function takeOver(id) {
             g.onTable.push(g.cards[index][card]);
             g.cards[index].splice(card,1);
             g.turn = (g.turn+1)%g.players.length;
+        }
+        if(g.players[g.turn] instanceof ai) {
+            g.players[g.turn].run();
+            //g.turn = (g.turn+1)%g.players.length;
         }
         g.timeout = setTimeout(function() {
             takeOver(id);
@@ -91,6 +96,10 @@ router.post('/HTML/putCardOnTable', function(req, res) {
             g.cards[index].splice(req.body.card,1);
             g.turn = (g.turn+1)%g.players.length;
             res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
+        }
+        if(g.players[g.turn] instanceof ai) {
+            g.players[g.turn].run();
+            //g.turn = (g.turn+1)%g.players.length;
         }
     }
     else{
