@@ -24,6 +24,10 @@ function checkGameMode(req, res){
 } 
 
 router.post("/HTML/playQueue", function(req, res, next) {
+     if(!req.session.username) {
+        res.send({message:"Not authenticated."});
+        return;
+     }
      if(req.body.gameMode == 2) {
         var game = new Game([{username:req.session.username, icon:req.session.icon, inbox:[]}], gameNr);
         var bot = new ai(game, "Robottas", game.players.length);

@@ -16,6 +16,9 @@ function main() {
 			if(window.location.search.substring(4) == 2 && xhr.responseJSON.message == "Game found") {
 				window.location.href= "/HTML/game.html?g="+xhr.responseJSON.id;
 			}
+			else if(xhr.responseJSON.message=="Not authenticated.") {
+				window.location.href= "/HTML/signIn.html";
+			}			
 			else poll();
 		}
 	});
