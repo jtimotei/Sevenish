@@ -32,6 +32,7 @@ router.post("/HTML/playQueue", function(req, res, next) {
         games.push(game);
         gameModule.initializeGame(games.length-1);
         res.send({message:"Game found", id:game.id});
+        gameNr++;
     }   
     else if(checkGameMode(req, res)) return;
     else {

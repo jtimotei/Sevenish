@@ -33,7 +33,7 @@ function poll() {
 				if(xhr.responseJSON.message == "Game found") {
 					window.location.href= "/HTML/game.html?g="+xhr.responseJSON.id;
 				} 
-				else{
+				else if(xhr.responseText=="Unsupported game mode"){
 					window.location.href= "/HTML/not_found.html";
 				}
 			}
