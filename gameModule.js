@@ -12,7 +12,7 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 
 function checkGameId(req, res) {
     var gameId = req.body.gameId - '0';
-    if(!Number.isInteger(gameId) || gameId < 0 || gameId >= 100) {
+    if(!Number.isInteger(gameId) || games[gameId] == undefined) {
         res.send("Game not found");
         return true;
     } 
