@@ -8,15 +8,16 @@ var ai = require("./bot.js");
 
 var gameModes = [
     { playQueue:[], nrPlayers:2 },
-    { playQueue:[], nrPlayers:4 }
+    { playQueue:[], nrPlayers:4 },
+    { playQueue:[], nrPlayers:2 }
 ];
 
 var games = [];
-var gameNr = 0;
+var gameIds = [];
 
 
 function checkGameMode(req, res){
-    if(req.body.gameMode != 0 && req.body.gameMode != 1) {
+    if(req.body.gameMode != 0 && req.body.gameMode != 1 && req.body.gameMode != 2) {
         res.send({message:"Unsupported game mode."});
         return true;
     }
@@ -28,16 +29,6 @@ router.post("/HTML/playQueue", function(req, res, next) {
         res.send({message:"Not authenticated."});
         return;
      }
-     if(req.body.gameMode == 2) {
-        var game = new Game([{username:req.session.username, icon:req.session.icon, inbox:[]}], gameNr);
-        var bot = new ai(game, "Robottas", game.players.length);
-        game.players.push(bot);
-        bot.greet();
-        games.push(game);
-        gameModule.initializeGame(games.length-1);
-        res.send({message:"Game found", id:game.id});
-        gameNr++;
-    }   
     else if(checkGameMode(req, res)) return;
     else {
         gameModes[req.body.gameMode].playQueue.push({username:req.session.username, date: req.body.date, icon:req.session.icon, lastSent: req.body.lastSent, inbox:[]});
@@ -77,9 +68,9 @@ function removeFromPlayQueue(array, gameMode) {
     }
 }
 
-function Game(pls, gameNumber) {
+function Game(pls, gameId) {
     this.players = pls;
-    this.id = gameNumber;
+    this.id = gameId;
     this.nrDistributedCards = 0;
     this.cards = [[],[],[],[]];
     this.turn = 0;
@@ -90,10 +81,27 @@ function Game(pls, gameNumber) {
     this.end = false;
 }
 
+function matchGM2() {
+    var gm = gameModes[2];
+    for(var i=0; i<gm.playQueue.length; i++) {
+        if(gameIds.length == 0) {
+            gm.playQueue.splice(0,i);
+            return;
+        }
+        var game = new Game([gm.playQueue[i]], gameIds.shift());
+        var bot = new ai(game, "Robottas", game.players.length);
+        game.players.push(bot);
+        bot.greet();
+        games[game.id] = game;
+        gameModule.initializeGame(game.id);
+    }
+    gm.playQueue = [];
+}
+
 function match(gameMode) {
     var gm = gameModes[gameMode];
     if(gm.playQueue.length >= gm.nrPlayers) {
-        var game = new Game([], gameNr);
+        var game = new Game([], null);
         var playersFound = 0;
         var indexes = []; 
         var invalidEntries = [];
@@ -120,10 +128,11 @@ function match(gameMode) {
             if(playersFound == gm.nrPlayers) break;
         }
         removeFromPlayQueue(invalidEntries, gameMode);
+        if(gameIds.length == 0) return;
         if(playersFound == gm.nrPlayers) {
-            games.push(game);
-            gameModule.initializeGame(games.length-1);
-            gameNr++;
+            game.id = gameIds.shift();
+            games[game.id] = game;
+            gameModule.initializeGame(game.id);
             removeFromPlayQueue(indexes, gameMode);
             match(gameMode);
         }
@@ -131,22 +140,26 @@ function match(gameMode) {
     return;
 }
 
-var alternate = true;
+var alternate = 0;
 
 setInterval(function() {
-    if(alternate) {
-        alternate=false;
+    if(alternate == 0) {
         match(0);
     }
-    else {
-        alternate = true;
+    else if(alternate == 1){
         match(1);
     }
-}, 1000);
+    else {
+        matchGM2();
+    }
+    alternate = (alternate+1)%3;
+
+}, 500);
 
 function initializeConnection(c) {
     connection = c;
-    gameModule.initialize(games, connection);
+    for(var i=0; i<100; i++) gameIds[i] = i; 
+    gameModule.initialize(games, gameIds, connection);
 }
 
 router.use(gameModule.router);

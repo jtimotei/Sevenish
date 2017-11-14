@@ -2,6 +2,7 @@ var express =require("express");
 var router = new express.Router();
 var ai = require("./bot.js");
 var games;
+var gameIds;
 
 var connection;
 
@@ -11,7 +12,7 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 
 function checkGameId(req, res) {
     var gameId = req.body.gameId - '0';
-    if(!Number.isInteger(gameId) || gameId < 0 || games.length <= gameId) {
+    if(!Number.isInteger(gameId) || gameId < 0 || gameId >= 100) {
         res.send("Game not found");
         return true;
     } 
@@ -152,7 +153,8 @@ function checkGameEnding(id, index) {
         if(!g.end) {
             g.end = true;
             addPoints(g);
-            if(!(g.players[0] instanceof ai) && !(g.players[1] instanceof ai)) updateDB(g);            
+            if(!(g.players[0] instanceof ai) && !(g.players[1] instanceof ai)) updateDB(g);
+            setTimeout( function() { gameIds.push(g.id); }, 5000);
         }
 
         if(g.team1P == g.team2P) return "Draw."; 
@@ -213,8 +215,9 @@ function initializeGame(id) {
     g.timeoutBegin = new Date().getTime();
 }
 
-function initialize(g, c) {
+function initialize(g, ids, c) {
     games = g;
+    gameIds = ids;
     connection = c;
 }
 
