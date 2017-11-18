@@ -1,7 +1,8 @@
 var express =require("express");
 var router = new express.Router();
-
+var ai = require("./bot.js");
 var games;
+var gameIds;
 
 var connection;
 
@@ -11,7 +12,7 @@ const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of
 
 function checkGameId(req, res) {
     var gameId = req.body.gameId - '0';
-    if(!Number.isInteger(gameId) || gameId < 0 || games.length <= gameId) {
+    if(!Number.isInteger(gameId) || games[gameId] == undefined) {
         res.send("Game not found");
         return true;
     } 
@@ -31,6 +32,8 @@ router.post("/HTML/chat", function(req, res){
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<g.players.length; i++) {
                 g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
+                var bot = g.players[i];
+                if(bot instanceof ai) setTimeout(function() {bot.react();}, 600);
             }
             res.send(g.players[j].inbox);
             g.players[j].inbox = [];
@@ -44,23 +47,13 @@ function takeOver(id) {
     var g = games[id];
     if(checkGameEnding(id, 0) == undefined) {
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0) {
-                g.turn = g.holder;
-                addPoints(id);
-                distributeCards(g);
-                g.onTable = [];
+                checkMove(g, -1);
         }
         else {
             var index = g.turn;
             var card = Math.floor(Math.random()*g.cards[index].length);
-            if(g.onTable.length > 0 && g.cards[index][card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][card].substring(0,1) == '7') g.holder=index;
-            g.onTable.push(g.cards[index][card]);
-            g.cards[index].splice(card,1);
-            g.turn = (g.turn+1)%g.players.length;
+            checkMove(g, card);
         }
-        g.timeout = setTimeout(function() {
-            takeOver(id);
-        }, 20000);
-        g.timeoutBegin = new Date().getTime();
     }
 }
 
@@ -68,35 +61,49 @@ function takeOver(id) {
 router.post('/HTML/putCardOnTable', function(req, res) {
     var g = games[req.body.gameId];
     if(req.session.username == g.players[g.turn].username) {
-        clearTimeout(g.timeout);
-        g.timeout = setTimeout(function() {
-            takeOver(req.body.gameId);
-        }, 20000);
-        g.timeoutBegin = new Date().getTime();
-        index = g.turn;
-        if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && req.body.card == -1) {
-            g.turn = g.holder;
-            addPoints(req.body.gameId);
-            distributeCards(g);
-            g.onTable = [];
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
-        } 
-        else if(g.cards[index][req.body.card] != undefined) {
-            if(g.onTable.length > 0 && g.cards[index][req.body.card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][req.body.card].substring(0,1) == '7') g.holder=index;
-            else if(g.onTable.length > 0 && g.onTable.length%g.players.length==0){
-                res.send("Invalid action");
-                return;
-            }
-            g.onTable.push(g.cards[index][req.body.card]);
-            g.cards[index].splice(req.body.card,1);
-            g.turn = (g.turn+1)%g.players.length;
-            res.send({ onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox});
-        }
+        var ret = checkMove(g, req.body.card);
+        res.send(ret);
     }
     else{
         res.send("Invalid action");
     }
 })
+
+function checkMove(g, card) {
+        index = g.turn;
+        var res;
+        if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && card == -1) {
+            g.turn = g.holder;
+            addPoints(g);
+            distributeCards(g);
+            g.onTable = [];
+            res = { onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox};
+        } 
+        else if(g.cards[index][card] != undefined) {
+            if(g.onTable.length > 0 && g.cards[index][card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][card].substring(0,1) == '7') g.holder=index;
+            else if(g.onTable.length > 0 && g.onTable.length%g.players.length==0){
+                return "Invalid action";
+            }
+            g.onTable.push(g.cards[index][card]);
+            g.cards[index].splice(card,1);
+            g.turn = (g.turn+1)%g.players.length;
+            res = { onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox};
+        }
+        else {
+            return "Invalid action";
+        }
+        clearTimeout(g.timeout);
+        g.timeoutBegin = new Date().getTime();
+        g.timeout = setTimeout(function() {
+            takeOver(g.id);
+        }, 20000);
+        var bot = g.players[g.turn];
+        if(bot instanceof ai) {
+            setTimeout(function() {bot.run();}, 1000);
+        }
+
+        return res;
+}
 
 function updateDB(g) {
     var gameMode;
@@ -117,8 +124,7 @@ function updateDB(g) {
     }
 }
 
-function addPoints(index) {
-    var g = games[index];
+function addPoints(g) {
     var points =0;
     for(var i=0;i<g.onTable.length;i++) {
         if(g.onTable[i].substring(0,1) == 'a' || g.onTable[i].substring(0,1) == '1') points++;
@@ -139,8 +145,9 @@ function checkGameEnding(id, index) {
 
         if(!g.end) {
             g.end = true;
-            addPoints(id);
-            updateDB(g);            
+            addPoints(g);
+            if(!(g.players[0] instanceof ai) && !(g.players[1] instanceof ai)) updateDB(g);
+            setTimeout( function() { gameIds.push(g.id); }, 5000);
         }
 
         if(g.team1P == g.team2P) return "Draw."; 
@@ -201,11 +208,13 @@ function initializeGame(id) {
     g.timeoutBegin = new Date().getTime();
 }
 
-function initialize(g, c) {
+function initialize(g, ids, c) {
     games = g;
+    gameIds = ids;
     connection = c;
 }
 
 module.exports.router = router;
 module.exports.initialize = initialize;
 module.exports.initializeGame = initializeGame;
+module.exports.checkMove = checkMove;

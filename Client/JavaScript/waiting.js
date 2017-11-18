@@ -4,19 +4,25 @@
 * When we have found a match we redirect them to a page. When they will request the page they will get the other players. 
 * Every move one players make are sent to the server with that id so we know who made what move in what game. 
 */
-
 var id = new Date().getTime();
 
-
-$.ajax({
+function main() {	
+	$.ajax({
 		type: "POST",
 		url: "/HTML/playQueue",
 		data: {date:id, lastSent:id, gameMode:window.location.search.substring(4)},
 		dataType: 'json',
-		complete: function() {
-			poll();
+		complete: function(xhr) {
+			if(window.location.search.substring(4) == 2 && xhr.responseJSON.message == "Game found") {
+				window.location.href= "/HTML/game.html?g="+xhr.responseJSON.id;
+			}
+			else if(xhr.responseJSON.message=="Not authenticated.") {
+				window.location.href= "/HTML/signIn.html";
+			}			
+			else poll();
 		}
 	});
+}
 
 function poll() {
 	setInterval(function request() {
@@ -27,7 +33,6 @@ function poll() {
 			data: {date:id, lastSent:currentTime.getTime(), gameMode:window.location.search.substring(4)},
 			dataType: 'json',
 			complete: function(xhr) {
-				window.closeIt=true;
 				if(xhr.responseJSON.message == "Game found") {
 					window.location.href= "/HTML/game.html?g="+xhr.responseJSON.id;
 				} 
@@ -39,5 +44,6 @@ function poll() {
 	}, 2000);
 }
 
+$(document).ready(main);
 
 
