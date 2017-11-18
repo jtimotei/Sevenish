@@ -31,3 +31,9 @@ var main = function(){
 	}
 }
 $(document).ready(main);
+
+// https://nodejs.org/api/https.html
+
+// https://www.npmjs.com/package/bcrypt-nodejs
+
+// https://letsencrypt.org/

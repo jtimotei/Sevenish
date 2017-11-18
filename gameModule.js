@@ -32,6 +32,8 @@ router.post("/HTML/chat", function(req, res){
         if(req.session.username == g.players[j].username) {
             for(var i=0; i<g.players.length; i++) {
                 g.players[i].inbox.push({sender:j, date:req.body.date, message:req.body.message});
+                var bot = g.players[i];
+                if(bot instanceof ai) setTimeout(function() {bot.react();}, 600);
             }
             res.send(g.players[j].inbox);
             g.players[j].inbox = [];
@@ -52,12 +54,6 @@ function takeOver(id) {
             var card = Math.floor(Math.random()*g.cards[index].length);
             checkMove(g, card);
         }
-        var bot = g.players[g.turn];
-        if(bot instanceof ai) {
-            setTimeout(function() {
-                bot.run();
-            }, 200);
-        }
     }
 }
 
@@ -74,21 +70,14 @@ router.post('/HTML/putCardOnTable', function(req, res) {
 })
 
 function checkMove(g, card) {
-        clearTimeout(g.timeout);
-        g.timeout = setTimeout(function() {
-            takeOver(g.id);
-        }, 20000);
-        g.timeoutBegin = new Date().getTime();
         index = g.turn;
         var res;
-        var waitTime = 500;
         if(g.onTable.length > 0 && g.onTable.length%g.players.length==0 && card == -1) {
             g.turn = g.holder;
             addPoints(g);
             distributeCards(g);
             g.onTable = [];
             res = { onTable:g.onTable, players:g.players, turn: g.turn, cards:g.cards[index],team1P: g.team1P, team2P: g.team2P, you:index, inbox:g.players[index].inbox};
-            waitTime = 1000;
         } 
         else if(g.cards[index][card] != undefined) {
             if(g.onTable.length > 0 && g.cards[index][card].substring(0,1) == g.onTable[0].substring(0,1) || g.cards[index][card].substring(0,1) == '7') g.holder=index;
@@ -103,10 +92,14 @@ function checkMove(g, card) {
         else {
             return "Invalid action";
         }
-
+        clearTimeout(g.timeout);
+        g.timeoutBegin = new Date().getTime();
+        g.timeout = setTimeout(function() {
+            takeOver(g.id);
+        }, 20000);
         var bot = g.players[g.turn];
         if(bot instanceof ai) {
-            setTimeout(function() {bot.run();}, waitTime);
+            setTimeout(function() {bot.run();}, 1000);
         }
 
         return res;
