@@ -16,15 +16,7 @@ const http = require("http"),
     
 
 // connect to the database
-var connection = mysql.createConnection(credentials.mysqlCredentials);
-
-connection.connect(function(err){
-  if(err){
-    console.log('<<< Error connecting to Db >>>');
-    return;
-  }
-  console.log('>>>> Connection established');
-});
+var pool = mysql.createPool(credentials.mysqlCredentials);
 
 //initiating the express aplication
 var app = express();
@@ -60,91 +52,94 @@ app.get("/", function(req, res){
 // this route handler authenticates the user by creating a username field in the session object
 app.post("/HTML/signIn", function(req, res, next){
 
-    // check whether the username exists in the database
-    connection.query("SELECT * FROM Users WHERE username = ?", [req.body.username], function(err, rows, fields) {
-
-        // check whether the password is correct
-        if((rows[0] == undefined) || (rows[0].password !== req.body.password)){
-            res.send("Username or password incorrect.");
-            return;
-        } else {
-            req.session.username = rows[0].username;
-            req.session.name = rows[0].name;
-            req.session.surname = rows[0].surname;
-            req.session.icon = rows[0].icon;
-            res.send("Success");
-        }
+    pool.getConnection(function(err, connection) {
+        // check whether the username exists in the database
+        connection.query("SELECT * FROM Users WHERE username = ?", [req.body.username], function(err, rows, fields) {
+            connection.release();
+            // check whether the password is correct
+            if((rows[0] == undefined) || (rows[0].password !== req.body.password)){
+                res.send("Username or password incorrect.");
+                return;
+            } else {
+                req.session.username = rows[0].username;
+                req.session.name = rows[0].name;
+                req.session.surname = rows[0].surname;
+                req.session.icon = rows[0].icon;
+                res.send("Success");
+            }
+        });
     });
-})
+});
 
 // this route handler is used when a new account is created
 // if everything is alright an approval message is sent back to the user 
 // if not then an error message is sent back to the user and the method is ended
 app.post("/HTML/checkUsername", function(req, res) {
+    pool.getConnection(function(err, connection) {
+        // query the username in the database to see if it already exists
+        connection.query("SELECT username FROM Users;", function(err, rows, fields) {
+            var request = req.body;
 
-    // query the username in the database to see if it already exists
-    connection.query("SELECT username FROM Users;", function(err, rows, fields) {
-
-        var request = req.body;
-
-        // check if the username contains unsupported symbols
-        if(!verify.verifyUsername(request.username)){
-            res.send("Username contains unsupported symbols.");
-            return;
-        }
-        
-        // check if the password is empty
-        if(request.password.length == 0){
-            res.send("Password is empty");
-            return;
-        }
-
-        // the password and the retype of the password have to match
-        if(request.password !== request.retype){
-            res.send("Passwords don't match");
-            return;
-        }
-
-
-        // the name can not be empty
-        if(!verify.verifyEmpty(request.name)){
-            res.send("Name is empty.");
-            return;
-        }
-
-        // the username has to be unique
-        for(var i=0;i<rows.length;i++){
-            if(rows[i].username == req.body.username){
-                res.send("Username already taken.");
+            // check if the username contains unsupported symbols
+            if(!verify.verifyUsername(request.username)){
+                res.send("Username contains unsupported symbols.");
                 return;
             }
-        }
-
-
-        var err = false;
-        // insert the data about the new user in the database
-        connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher"}, function(error) {
-            if (error) {
-                console.log(error.message);
-                err = true;
-            } else {
-                console.log('success');    
+            
+            // check if the password is empty
+            if(request.password.length == 0){
+                res.send("Password is empty");
+                return;
             }
-        });
 
-        // create the stats for the new users in the database
-        connection.query('INSERT INTO Stats SET ?', {username: request.username, games1v1:0, games2v2:0, wins1v1:0, wins2v2:0, points1v1:0, points2v2:0}, function(error) {
-            if (error) {
-                console.log(error.message);
-                err = true;
-            } else {
-                console.log('success');    
+            // the password and the retype of the password have to match
+            if(request.password !== request.retype){
+                res.send("Passwords don't match");
+                return;
             }
-        });
 
-        // if an error occured during the database update then an error message is sent to the user
-        if(err) res.send("An error occured.");
-        res.send("Success");
+
+            // the name can not be empty
+            if(!verify.verifyEmpty(request.name)){
+                res.send("Name is empty.");
+                return;
+            }
+
+            // the username has to be unique
+            for(var i=0;i<rows.length;i++){
+                if(rows[i].username.toUpperCase() == req.body.username.toUpperCase()){
+                    res.send("Username already taken.");
+                    return;
+                }
+            }
+
+
+            var err = false;
+            // insert the data about the new user in the database
+            connection.query('INSERT INTO Users SET ?', {username: request.username, password: request.password, name: request.name, surname:request.surname, icon:"teacher"}, function(error) {
+                if (error) {
+                    console.log(error.message);
+                    err = true;
+                } else {
+                    console.log('success');    
+                }
+            });
+
+            // create the stats for the new users in the database
+            connection.query('INSERT INTO Stats SET ?', {username: request.username, games1v1:0, games2v2:0, wins1v1:0, wins2v2:0, points1v1:0, points2v2:0}, function(error) {
+                if (error) {
+                    console.log(error.message);
+                    err = true;
+                } else {
+                    console.log('success');    
+                }
+            });
+
+            connection.release();
+            // if an error occured during the database update then an error message is sent to the user
+            if(err) res.send("An error occured.");
+            res.send("Success");
+        });
     });
 });
 
@@ -164,14 +159,16 @@ app.post("/changeIcon", function(req, res) {
 
     // check if the user is authenticated and if the index lies between de boundaries of the array
     if(req.session.username != undefined && req.body.nr >=0 && req.body.nr <= 6) {
-
-        // update the data in the database
-        connection.query("UPDATE Users SET icon=? WHERE username=?;", [icons[req.body.nr], req.session.username], function(error) {
-            if(error) console.log(error.message);
-            else {
-                req.session.icon = icons[req.body.nr];
-                res.send("Success");
-            }
+        pool.getConnection(function(err, connection) {
+            // update the data in the database
+            connection.query("UPDATE Users SET icon=? WHERE username=?;", [icons[req.body.nr], req.session.username], function(error) {
+                connection.release();
+                if(error) console.log(error.message);
+                else {
+                    req.session.icon = icons[req.body.nr];
+                    res.send("Success");
+                }
+            });
         });
     }
 });
@@ -180,5 +177,5 @@ app.use(queueModule.router);
 app.use(profileModule.router);
 
 // pass the connection with the database with the other modules
-profileModule.initializeConnection(connection);
-queueModule.initializeConnection(connection);
+profileModule.initializePool(pool);
+queueModule.initializePool(pool);

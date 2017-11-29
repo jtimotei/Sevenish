@@ -4,7 +4,7 @@ var ai = require("./bot.js");
 var games;
 var gameIds;
 
-var connection;
+var pool;
 
 const allcards = ["7_of_clubs","7_of_diamonds","7_of_hearts","7_of_spades","8_of_clubs","8_of_diamonds","8_of_hearts","8_of_spades","9_of_clubs","9_of_diamonds","9_of_hearts","9_of_spades",
 "10_of_clubs","10_of_diamonds","10_of_hearts","10_of_spades","jack_of_clubs2","jack_of_diamonds2","jack_of_hearts2","jack_of_spades2","queen_of_clubs2","queen_of_diamonds","queen_of_hearts2",
@@ -115,13 +115,15 @@ function updateDB(g) {
     var queryDraw = "UPDATE Stats SET games"+gameMode+" = games"+gameMode+" + 1 WHERE username=?;";
 
     var query;
-    for(var i=0;i<g.players.length; i++){
-        if(g.team1P == g.team2P) query=queryDraw;
-        else if((i%2 == 0 && g.team1P > g.team2P) || (i%2 == 1 && g.team1P < g.team2P)) query= queryWin;
-        else query=queryLoss;
-
-        connection.query(query,[g.players[i].username]);
-    }
+    pool.getConnection(function(err, connection) {
+        for(var i=0;i<g.players.length; i++) {
+            if(g.team1P == g.team2P) query=queryDraw;
+            else if((i%2 == 0 && g.team1P > g.team2P) || (i%2 == 1 && g.team1P < g.team2P)) query= queryWin;
+            else query=queryLoss;
+            connection.query(query,[g.players[i].username]);
+        }
+        connection.release();
+    });
 }
 
 function addPoints(g) {
@@ -208,10 +210,10 @@ function initializeGame(id) {
     g.timeoutBegin = new Date().getTime();
 }
 
-function initialize(g, ids, c) {
+function initialize(g, ids, p) {
     games = g;
     gameIds = ids;
-    connection = c;
+    pool = p;
 }
 
 module.exports.router = router;
