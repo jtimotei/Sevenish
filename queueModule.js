@@ -2,7 +2,7 @@ const gameModule = require("./gameModule.js"),
     express =require("express");
 
 var router = new express.Router();
-var connection;
+var pool;
 
 var ai = require("./bot.js");
 
@@ -156,12 +156,12 @@ setInterval(function() {
 
 }, 500);
 
-function initializeConnection(c) {
-    connection = c;
+function initializePool(p) {
+    pool = p;
     for(var i=0; i<100; i++) gameIds[i] = i; 
-    gameModule.initialize(games, gameIds, connection);
+    gameModule.initialize(games, gameIds, pool);
 }
 
 router.use(gameModule.router);
 module.exports.router = router;
-module.exports.initializeConnection = initializeConnection;
+module.exports.initializePool = initializePool;
