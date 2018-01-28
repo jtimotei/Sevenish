@@ -1,4 +1,15 @@
 var main = function(){
+
+	function adaptSignUp() {
+		// this could have been done with css
+		// however in chrome, the layout would be correct only after a refresh.
+		positionY = $("#body").height()/2 - $("div#content").height()/2;
+
+		$("div#content").css("top",positionY);
+	}
+	adaptSignUp();
+	$("div#content").css("display", "inline-block");
+
 	$("div#submit").on("click", submit);
 
 	$("input").on("keypress", function(event) {
@@ -30,5 +41,9 @@ var main = function(){
 			}
 		})
 	}
+
+	$(window).on("resize", function() {
+		adaptSignUp();
+	})
 }
 $(document).ready(main);
