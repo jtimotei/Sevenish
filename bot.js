@@ -64,7 +64,7 @@ function ai(g, name, i) {
     }
 
     this.react = function() {
-        var texts = ["Minimal talking.", "I'm focused.", "I'm focused.", "Minimal talking.", "You're good at this!", "I'm having fun!"]
+        var texts = ["Minimal talking.", "I'm focused.", "I'm focused.", "Minimal talking.", "You're good at this.", "I'm having fun!"]
         var rand = Math.floor(Math.random() * 14);
         if(rand >= 8) this.chat(texts[rand-8]);
         this.inbox = [];
