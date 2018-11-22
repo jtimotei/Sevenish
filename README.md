@@ -1,5 +1,5 @@
 # Sevenish
-### The result can be found here: jtimotei.com:3000
+### The result can be found [here](http://jtimotei.com:3000)
 
 I will keep updating the game, improving it and adding new features.
 
